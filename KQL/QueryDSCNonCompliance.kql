@@ -1,0 +1,7 @@
+AzureDiagnostics 
+|where OperationName == "DscNodeStatusData"
+|project TimeGenerated, Category, NodeName_s, NodeComplianceStatus_s, DscReportStatus_s, ResourceGroup
+|where NodeComplianceStatus_s !contains "Compliant"
+|where TimeGenerated > ago(2h)
+|summarize Events=count() by NodeName_s
+|where Events > 1
