@@ -1,14 +1,14 @@
 Configuration User {
 
-    #variable for acissla password is present in automation at this time
+    #variable for localadmin password is present in automation at this time
     Node 'localhost' {
 
-        User acissla
+        User localadmin
         {
             Ensure = "Present"
             Disabled = $false
-            UserName = "acissla"
-            FullName = "acissla"
+            UserName = "localadmin"
+            FullName = "localadmin"
             Password = $testcred
             PasswordChangeRequired = $false
             PasswordNeverExpires = $true
