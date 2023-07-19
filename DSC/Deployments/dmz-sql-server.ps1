@@ -208,6 +208,22 @@ Configuration DmzSQLServer {
             }
         }
             
+        Script DisableLocalAdminUser
+        {
+            TestScript = {
+                if ((Get-LocalUser -Name "Administrator" | Out-String -Stream) -like "*True*") {
+                    $false }
+                    else {
+                        $true }
+            }
+            SetScript = {
+                Disable-LocalUser -Name "Administrator"
+            }
+            GetScript = {
+                @{ Result = (Get-LocalUser -Name "Administrator")}
+            }
+        }
+        
         Script CryptoWebServerStrict
         {
             TestScript = {

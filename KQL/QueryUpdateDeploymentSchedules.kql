@@ -1,0 +1,6 @@
+UpdateSummary
+| where TimeGenerated > ago(10d)
+| join kind=inner(UpdateRunProgress| project Computer, UpdateRunName) on Computer
+| join kind=innerunique (Heartbeat | distinct Computer) on Computer
+| where UpdateRunName != "Defender"
+| project Resource, UpdateRunName, CriticalUpdatesMissing, SecurityUpdatesMissing

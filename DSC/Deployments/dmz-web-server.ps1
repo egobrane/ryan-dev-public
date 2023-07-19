@@ -322,7 +322,7 @@ Configuration DmzWebServerv2 {
             Arguments = $DuoInstallArguments
             DependsOn = @(
                 "[Archive]DMZResource"
-                "[OfflineDomainJoin]ACISSCOM"
+                "[OfflineDomainJoin]EGOBRANENET"
             )
         }
 
@@ -409,7 +409,7 @@ Configuration DmzWebServerv2 {
                         $false }
             }
             SetScript = {
-                New-Item -ItemType SymbolicLink -Path "C:\Jumbo\MapData\Vector20220518\" -Target "\\egosql\MapData\Vector20220518\"
+                New-Item -ItemType SymbolicLink -Path "C:\Jumbo\MapData\" -Target "\\egosql\MapData\"
             }
             GetScript = {
                 @{ Result = (Get-ChildItem "C:\Jumbo\")}
@@ -455,6 +455,22 @@ Configuration DmzWebServerv2 {
             DependsOn = "[WindowsFeatureSet]DMZWebServer"
         }
 
+        Script DisableLocalAdminUser
+        {
+            TestScript = {
+                if ((Get-LocalUser -Name "Administrator" | Out-String -Stream) -like "*True*") {
+                    $false }
+                    else {
+                        $true }
+            }
+            SetScript = {
+                Disable-LocalUser -Name "Administrator"
+            }
+            GetScript = {
+                @{ Result = (Get-LocalUser -Name "Administrator")}
+            }
+        }
+        
         Script CryptoWebServerStrict
         {
             TestScript = {
