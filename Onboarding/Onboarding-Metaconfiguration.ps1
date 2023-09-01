@@ -1,5 +1,5 @@
 [DscLocalConfigurationManager()]
-#This script is for onboarding to Azure Automation. Replace RegistrationUrl and RegistrationKey parameters with ACISS values
+#This script is for onboarding to Azure Automation. Replace RegistrationUrl and RegistrationKey parameters with correct values
 Configuration DscMetaConfigs
 {
      param
