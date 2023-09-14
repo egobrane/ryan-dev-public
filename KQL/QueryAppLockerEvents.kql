@@ -1,0 +1,3 @@
+Event
+| where EventLog == "Microsoft-Windows-AppLocker/EXE and DLL" and EventID == "8003"
+| distinct RenderedDescription

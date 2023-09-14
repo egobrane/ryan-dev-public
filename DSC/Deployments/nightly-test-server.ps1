@@ -1,4 +1,4 @@
-Configuration NightlyTestServer {
+Configuration NightlyTestServerv3 {
 
 	param (
 		[Parameter(Mandatory = $true)]
@@ -12,12 +12,12 @@ Configuration NightlyTestServer {
 	$registryPathWSUS = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
 	$registryPathAU = Join-Path $registryPathWSUS "\AU"
 
-	$dsoStorageRoot = "https://nope.blob.core.usgovcloudapi.net/nope/scripts/DSC/Resources"
-	$dsoAppLockerRoot = "https://nopeblob.core.usgovcloudapi.net/nope/scripts/DSC/AppLocker"
+	$dsoStorageRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecopsdev/scripts/DSC/Resources"
+	$dsoAppLockerRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecopsdev/scripts/DSC/AppLocker"
 	$azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows"
 
-	$dsoRoot = 'C:\nope\$SecDevOps'
-	$geocodePath = "C:\ProgramData\nope\nopeWeb_Default"
+	$dsoRoot = 'C:\egobrane\$DevSecOps'
+	$geocodePath = "C:\ProgramData\egobrane\egobraneWeb_Default"
 	$dsoLocalResources = Join-Path $dsoRoot "Resources"
 	$azCopyPath = Join-Path $dsoRoot "azcopy.exe"
 	$policyPath = Join-Path $dsoRoot "Applocker-Global-pol.xml"
@@ -26,7 +26,7 @@ Configuration NightlyTestServer {
 	$productKey2022 = Get-AutomationVariable -Name "Server2022Key"
 	$domainJoinUser = Get-AutomationVariable -Name "domainJoinSvc"
 	$domainJoinPass = Get-AutomationVariable -Name "domainJoinSecret"
-	$nopelaPass = Get-AutomationPSCredential -Name "$hostName-localadmin"
+	$egobranelaPass = Get-AutomationPSCredential -Name "$hostName-egobranela"
 
 
 	Node $hostName {
@@ -48,7 +48,7 @@ Configuration NightlyTestServer {
 			Key       = $registryPathWSUS
 			ValueName = "WUServer"
 			ValueType = "String"
-			ValueData = "https://wsusserver.com:8531"
+			ValueData = "https://wsus2019.egobranenet.com:8531"
 			Force     = $true
 		}
 
@@ -58,7 +58,7 @@ Configuration NightlyTestServer {
 			Key       = $registryPathWSUS
 			ValueName = "WUStatusServer"
 			ValueType = "String"
-			ValueData = "https://wsusserver.com:8531"
+			ValueData = "https://wsus2019.egobranenet.com:8531"
 			Force     = $true
 		}
 
@@ -152,13 +152,13 @@ Configuration NightlyTestServer {
 			Attributes      = "Hidden"
 		}
 
-		User nopela
+		User egobranela
 		{
 			Ensure                 = "Present"
 			Disabled               = $false
-			UserName               = "nopela"
-			FullName               = "nopela"
-			Password               = $nopelaPass
+			UserName               = "egobranela"
+			FullName               = "egobranela"
+			Password               = $egobranelaPass
 			PasswordChangeRequired = $false
 			PasswordNeverExpires   = $true
 		}
@@ -184,7 +184,7 @@ Configuration NightlyTestServer {
 				"NET-WCF-TCP-PortSharing45"
 			)
 			Ensure    = "Present"
-			DependsOn = "[Script]Net35Download"
+			DependsOn = "[Script]DownloadNet35"
 		}
 
 		WindowsFeatureSet DMZWebServer
@@ -220,7 +220,7 @@ Configuration NightlyTestServer {
 				"Web-Mgmt-Console"
 			)   
 			Ensure    = "Present"
-			DependsOn = "[Script]Net35Download"
+			DependsOn = "[Script]DownloadNet35"
 		}
 
 		Script DownloadAzCopy
@@ -254,6 +254,27 @@ Configuration NightlyTestServer {
 				@{ Result = (Test-Path $using:azCopyPath) }
 			}
 			DependsOn  = "[File]DevSecOps"
+		}
+
+		Script SetAzCopyAutoLoginVariable
+		{
+			TestScript = {
+				if (($env:AZCOPY_AUTO_LOGIN_TYPE) -eq "MSI")
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript = {
+				[Environment]::SetEnvironmentVariable("AZCOPY_AUTO_LOGIN_TYPE", "MSI", "Machine")
+			}
+			GetScript = {
+				@{ Result = ($env:AZCOPY_AUTO_LOGIN_TYPE) }
+			}
+			DependsOn = "[Script]DownloadAzCopy"
 		}
 
 		Script WindowsProductKey 
@@ -307,12 +328,12 @@ Configuration NightlyTestServer {
 			}
 		}
 
-		Script IndexRedirectDownload
+		Script DownloadIndexRedirect
 		{
 			TestScript = {
 				$indexPath = "C:\inetpub\wwwroot\index.htm"
 				if ((Test-Path -Path $indexPath) -and ((Get-Content -Path $indexPath |
-							Out-String -Stream) -like "*./nopeweb*"))
+							Out-String -Stream) -like "*./egobraneweb*"))
 				{
 					$true
 				}
@@ -324,7 +345,6 @@ Configuration NightlyTestServer {
 			SetScript  = {
 				$indexPath = "C:\inetpub\wwwroot\index.htm"
 				Get-ChildItem "C:\inetpub\wwwroot\" -Exclude "web.config" | Remove-Item -Force -Confirm -ErrorAction SilentlyContinue
-				(& $using:azCopyPath login --identity --output-level="essential") | Out-Null
 				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/nightlytestindex.htm" `
 						$indexPath --overwrite=true --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
@@ -335,10 +355,37 @@ Configuration NightlyTestServer {
 			GetScript  = {
 				@{ Result = ((Get-Content -Path "C:\inetpub\wwwroot\index.htm")) }
 			}
-			DependsOn  = "[Script]DownloadAzCopy"
+			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
 		}
 
-		Script Net48Download
+		Script DownloadAutoUpdate
+		{
+			TestScript = {
+				if ((Get-ScheduledTask -TaskName "egobrane Updates" -ErrorAction SilentlyContinue).TaskName -eq "egobrane Updates")
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript = {
+				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/AutoUpdate.ps1" `
+					"$using:dsoRoot\AutoUpdate.ps1" --overwrite=true --output-level="essential") | Out-String
+				if($LASTEXITCODE -ne 0)
+				{
+					throw (("Copy error. $result"))
+				}
+				powershell.exe -ExecutionPolicy Bypass -File "$using:dsoRoot\AutoUpdate.ps1"
+			}
+			GetScript = {
+				@{ Result = (Get-ScheduledTask -TaskName "egobrane Updates" -ErrorAction SilentlyContinue) }
+			}
+			DependsOn = "[Script]SetAzCopyAutoLoginVariable"
+		}
+
+		Script DownloadNet48
 		{
 			TestScript = {
 				Remove-Item "$using:dsoLocalResources\ndp48-x86-x64-allos-enu.exe" -Force -Confirm -ErrorAction SilentlyContinue
@@ -352,7 +399,6 @@ Configuration NightlyTestServer {
 				}
 			}
 			SetScript  = {
-				(& $using:azCopyPath login --identity --output-level="essential") | Out-Null
 				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/ndp48-x86-x64-allos-enu.exe" `
 						"$using:dsoLocalResources\ndp48-x86-x64-allos-enu.exe" --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
@@ -364,10 +410,10 @@ Configuration NightlyTestServer {
 			GetScript  = {
 				@{ Result = (Get-ItemPropertyValue -LiteralPath 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' -Name Release) }
 			}
-			DependsOn  = "[Script]DownloadAzCopy"
+			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
 		}
 
-		Script Net35Download
+		Script DownloadNet35
 		{
 			TestScript = {
 				Remove-Item "$using:dsoLocalResources\microsoft-windows-netfx3-ondemand-package~31bf3856ad364e35~amd64~~.cab" `
@@ -378,7 +424,6 @@ Configuration NightlyTestServer {
 			}
 			SetScript  = {
 				$DISM = 'C:\Windows\System32\Dism.exe'
-				(& $using:azCopyPath login --identity --output-level="essential") | Out-Null
 				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/microsoft-windows-netfx3-ondemand-package~31bf3856ad364e35~amd64~~.cab" `
 						"$using:dsoLocalResources\microsoft-windows-netfx3-ondemand-package~31bf3856ad364e35~amd64~~.cab" --output-level="essential") |
 				Out-String
@@ -394,10 +439,10 @@ Configuration NightlyTestServer {
 						ForEach-Object { $_.Version -as [System.Version] } | Where-Object { $_.Major -eq 3 }) 
     }
 			}
-			DependsOn  = "[Script]DownloadAzCopy"
+			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
 		}
 
-		Script MSOLEDBSQLDownload
+		Script DownloadMSOLEDBSQL
 		{
 			TestScript = {
 				Remove-Item "$using:dsoLocalResources\msoledbsql_18.6.5_x64_recommended.msi" `
@@ -413,7 +458,6 @@ Configuration NightlyTestServer {
 			}
 			SetScript  = {
 				$msoledbsqlPath = Join-Path $using:dsoLocalResources "msoledbsql_18.6.5_x64_recommended.msi"
-				(& $using:azCopyPath login --identity --output-level="essential") | Out-Null
 				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/msoledbsql_18.6.5_x64_recommended.msi" `
 						$msoledbsqlPath --output-level="essential") |
 				Out-String
@@ -426,20 +470,19 @@ Configuration NightlyTestServer {
 			GetScript  = {
 				@{ Result = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\MSOLEDBSQL').InstalledVersion }
 			}
-			DependsOn  = "[Script]DownloadAzCopy"
+			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
 		}
 
-		Script GeocodeDataDownload
+		Script DownloadGeocodeData
 		{
 			TestScript = {
 				$geocodeReferenceData = "FL_tiger.sqlite", "KS_tiger.sqlite", "TX_tiger.sqlite"
-				$geocodeDifferenceData = (Get-ChildItem "$using:geocodePath\nopeData" -ErrorAction SilentlyContinue).Name
+				$geocodeDifferenceData = (Get-ChildItem "$using:geocodePath\GeocodeData" -ErrorAction SilentlyContinue).Name
 				$geocodeIsPresent = @(Compare-Object -ReferenceObject @($geocodeReferenceData | Select-Object) `
 						-DifferenceObject @($geocodeDifferenceData | Select-Object)).Length -eq 0
 				$geocodeIsPresent
 			}
 			SetScript  = {
-				(& $using:azCopyPath login --identity --output-level="essential") | Out-Null
 				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/GeocodeData" `
 						"$using:geocodePath" --recursive=true) | Out-String
 				if($LASTEXITCODE -ne 0)
@@ -450,13 +493,13 @@ Configuration NightlyTestServer {
 			GetScript  = {
 				@{ Result = (Get-ChildItem "$using:geocodePath\GeocodeData" -ErrorAction SilentlyContinue) }
 			}
-			DependsOn  = "[Script]DownloadAzCopy"
+			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
 		}
 		
 		Script DomainJoin
 		{
 			Testscript = {
-				if (((Get-WmiObject Win32_ComputerSystem).Domain | Out-String -Stream) -like '*nope' )
+				if (((Get-WmiObject Win32_ComputerSystem).Domain | Out-String -Stream) -like '*egobrane*' )
 				{
 					$true
 				}
@@ -466,7 +509,7 @@ Configuration NightlyTestServer {
 				}
 			}
 			SetScript  = {
-				(Get-WmiObject -NameSpace "Root\Cimv2" -Class "Win32_ComputerSystem").JoinDomainOrWorkgroup("bamf.com", "$using:domainJoinPass", "$using:domainJoinUser", $null, 3)
+				(Get-WmiObject -NameSpace "Root\Cimv2" -Class "Win32_ComputerSystem").JoinDomainOrWorkgroup("aad.egobrane.com", "$using:domainJoinPass", "$using:domainJoinUser", $null, 3)
 				Restart-Computer -Force
 			}
 			GetScript  = {
@@ -625,13 +668,13 @@ Configuration NightlyTestServer {
 			GetScript  = {
 				@{ Result = (Get-LocalUser -Name "Administrator") }
 			}
-			DependsOn  = "[User]nopela"
+			DependsOn  = "[User]egobranela"
 		}
 
 		Script LocalAdministratorGroup
 		{
 			TestScript = {
-				if ((Get-LocalGroupMember -Group "Administrators").Name -like "$using:hostName\nopela")
+				if ((Get-LocalGroupMember -Group "Administrators").Name -like "$using:hostName\egobranela")
 				{
 					$true
 				}
@@ -641,13 +684,13 @@ Configuration NightlyTestServer {
 				}
 			}
 			SetScript  = {
-				Add-LocalGroupMember -Group "Administrators" -Member 'nopela' -ErrorAction SilentlyContinue
+				Add-LocalGroupMember -Group "Administrators" -Member 'egobranela' -ErrorAction SilentlyContinue
 			}
 			GetScript  = {
 				@{ Result = (Get-LocalGroupMember -Group "Administrators") }
 			}
 			DependsOn  = @(
-				"[User]nopela"
+				"[User]egobranela"
 				"[Script]DomainJoin"
 			)
 		}
@@ -859,13 +902,20 @@ Configuration NightlyTestServer {
 				$false
 			}
 			SetScript  = {
-				(& $using:azCopyPath login --identity --output-level="essential") | Out-Null
-				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
-						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
-				if($LASTEXITCODE -ne 0)
-				{
-					throw (("Copy error. $result"))
-				}
+				$attempt = 0
+				do {
+					$attempt++
+					$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
+					"$using:policyPath" --overwrite-ifSourceNewer --output-level="essential") | Out-String
+					if($LASTEXITCODE -eq 0) {break}
+					if($attempt -ge 5)
+					{
+						throw (("Copy error. $result"))
+					}
+					$error.Clear()
+					$LASTEXITCODE = 0
+					Start-Sleep -Seconds 1
+				} while ($attempt -le 5)
 				Set-AppLockerPolicy -XmlPolicy "$using:policyPath"
 			}
 			GetScript  = {
@@ -876,7 +926,7 @@ Configuration NightlyTestServer {
 					Result     = (Get-Content "$using:policyPath")
 				}
 			}
-			DependsOn  = "[Script]DownloadAzCopy"
+			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
 		}
 	}
 }

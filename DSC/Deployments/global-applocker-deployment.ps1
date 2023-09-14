@@ -1,4 +1,4 @@
-Configuration GlobalApplockerDeploymentv4 {
+Configuration GlobalApplockerDeploymentv3 {
 
 	#This current version uses AzCopy to download new policies and apply them if changes have been made. 
 	#XML Policy storage is still located in DevSecOpsDev for the time being. 
@@ -9,8 +9,8 @@ Configuration GlobalApplockerDeploymentv4 {
 
 	Import-DscResource -ModuleName PSDesiredStateConfiguration
 
-	$dsoAppLockerRoot = "https://nope.blob.core.usgovcloudapi.net/devsecopsdev/scripts/DSC/AppLocker"
-	$dsoRoot = 'C:\nope\$DevSecOps'
+	$dsoAppLockerRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecopsdev/scripts/DSC/AppLocker"
+	$dsoRoot = 'C:\egobrane\$DevSecOps'
 	$policyPath = Join-Path $dsoRoot "Applocker-Global-pol.xml"
 	$azCopyPath = Join-Path $dsoRoot "azcopy.exe"
 	$azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows"
@@ -81,6 +81,54 @@ Configuration GlobalApplockerDeploymentv4 {
 			}
 		}
 
+		#Set AutoLogin for AzCopy
+		Script SetAzCopyAutoLoginVariable
+		{
+			TestScript = {
+				if (($env:AZCOPY_AUTO_LOGIN_TYPE) -eq "MSI")
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript = {
+				[Environment]::SetEnvironmentVariable("AZCOPY_AUTO_LOGIN_TYPE", "MSI", "Machine")
+			}
+			GetScript = {
+				@{ Result = ($env:AZCOPY_AUTO_LOGIN_TYPE) }
+			}
+		}		
+
+		Script DownloadAutoUpdate
+		{
+			TestScript = {
+				if ((Get-ScheduledTask -TaskName "egobrane Updates" -ErrorAction SilentlyContinue).TaskName -eq "egobrane Updates")
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript = {
+				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/AutoUpdate.ps1" `
+					"$using:dsoRoot\AutoUpdate.ps1" --overwrite=true --output-level="essential") | Out-String
+				if($LASTEXITCODE -ne 0)
+				{
+					throw (("Copy error. $result"))
+				}
+				powershell.exe -ExecutionPolicy Bypass -File "$using:dsoRoot\AutoUpdate.ps1"
+			}
+			GetScript = {
+				@{ Result = (Get-ScheduledTask -TaskName "egobrane Updates" -ErrorAction SilentlyContinue) }
+			}
+			DependsOn = "[Script]SetAzCopyAutoLoginVariable"
+		}
+
 		#Check if remote policy has changed and downloads latest policy if so
 		Script PolicyUpdate
 		{
@@ -88,13 +136,20 @@ Configuration GlobalApplockerDeploymentv4 {
 				$false
 			}
 			SetScript  = {
-				(& $using:azCopyPath login --identity --output-level="essential") | Out-Null
-				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
-						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
-				if($LASTEXITCODE -ne 0)
-				{
-					throw (("Copy error. $result"))
-				}
+				$attempt = 0
+				do {
+					$attempt++
+					$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
+					"$using:policyPath" --overwrite-ifSourceNewer --output-level="essential") | Out-String
+					if($LASTEXITCODE -eq 0) {break}
+					if($attempt -ge 5)
+					{
+						throw (("Copy error. $result"))
+					}
+					$error.Clear()
+					$LASTEXITCODE = 0
+					Start-Sleep -Seconds 1
+				} while ($attempt -le 5)
 				Set-AppLockerPolicy -XmlPolicy "$using:policyPath"
 			}
 			GetScript  = {
@@ -105,7 +160,7 @@ Configuration GlobalApplockerDeploymentv4 {
 					Result     = (Get-Content "$using:policyPath")
 				}
 			}
-			DependsOn  = "[Script]DownloadAzCopy"
+			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
 		}
 	}
 }
