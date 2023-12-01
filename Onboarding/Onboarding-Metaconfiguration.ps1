@@ -87,7 +87,7 @@ Configuration DscMetaConfigs
 
 $Params = @{
      RegistrationUrl = 'http://egobrane.com/privateurl';
-     RegistrationKey = 'ipjf40923jf0-893q4jw089fj3wsopajfvidfjgp[jaeqgr09-rgjo';
+     RegistrationKey = 'ipjf40923jfasdfasddgasdfgadsfqawrefasdf';
      ComputerName = @('localhost');
      RefreshFrequencyMins = 30;
      ConfigurationModeFrequencyMins = 15;

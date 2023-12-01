@@ -1,0 +1,1 @@
+Connect-AzAccount -Environment AzureUSGovernment -UseDeviceAuthentication -Scope Process;

@@ -483,11 +483,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Dev\\ryan-dev\\az204svcbus\\az204svcbus.csproj",
+      "projectUniqueName": "C:\\Dev\\ryan-dev-public\\Education\\az204svcbus\\az204svcbus.csproj",
       "projectName": "az204svcbus",
-      "projectPath": "C:\\Dev\\ryan-dev\\az204svcbus\\az204svcbus.csproj",
+      "projectPath": "C:\\Dev\\ryan-dev-public\\Education\\az204svcbus\\az204svcbus.csproj",
       "packagesPath": "C:\\Users\\ryan.bamford\\.nuget\\packages\\",
-      "outputPath": "C:\\Dev\\ryan-dev\\az204svcbus\\obj\\",
+      "outputPath": "C:\\Dev\\ryan-dev-public\\Education\\az204svcbus\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ryan.bamford\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -535,7 +535,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.302\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.311\\RuntimeIdentifierGraph.json"
       }
     }
   }

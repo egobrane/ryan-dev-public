@@ -1,14 +1,13 @@
 #Compile Configurations
-$configurationName = "DmzWebServerv3"
+$configurationName = "egobranepc"
 
 $hostNames = @(
-	'localhost',
-	'other-localhost'
+	'dmz-egobrane'
 )   
 
 $Parameters = @{
     'hostName' = ''
-    'YearRange' = '2022-2023'
+    'YearRange' = '2023-2024'
 }
 
 foreach ($hostName in $hostNames) {
@@ -25,8 +24,9 @@ $nameArray = (Get-AzAutomationDscNode -ResourceGroupName "egobrane-Internal" -Au
 | Select-Object -Property Name,Id | Where-Object {$_.Name -like "*$searchTerm*"}).Name
 
 
-#Assign Nodes, not working yet
+#Assign Nodes
 
-foreach ($searchResult in $searchArray) {
-	Set-AzAutomationDscNode -NodeConfigurationName "$configurationName.$"
-}
+$deviceName = "egodesktop2";
+$nodeConfigurationName = "Workstation.localhost";
+$deviceId = (Get-AzAutomationDscNode -ResourceGroupName "egobrane-Internal" -AutomationAccountName "egobrane-Internal-AA" -name $deviceName).Id;
+Set-AzAutomationDscNode -ResourceGroupName "egobrane-Internal" -AutomationAccountName "egobrane-Internal-AA" -id $deviceId -NodeConfigurationName $nodeConfigurationName -force;

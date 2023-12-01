@@ -1,4 +1,4 @@
-Configuration NightlyTestServerv3 {
+Configuration NightlyTestServerv5 {
 
 	param (
 		[Parameter(Mandatory = $true)]
@@ -27,6 +27,7 @@ Configuration NightlyTestServerv3 {
 	$domainJoinUser = Get-AutomationVariable -Name "domainJoinSvc"
 	$domainJoinPass = Get-AutomationVariable -Name "domainJoinSecret"
 	$egobranelaPass = Get-AutomationPSCredential -Name "$hostName-egobranela"
+	$teamcityPass = Get-AutomationPSCredential -Name "teamcity-cred"
 
 
 	Node $hostName {
@@ -163,6 +164,17 @@ Configuration NightlyTestServerv3 {
 			PasswordNeverExpires   = $true
 		}
 
+		User Teamcity
+		{
+			Ensure                 = "Present"
+			Disabled               = $false
+			UserName               = "teamcity"
+			FullName               = "teamcity"
+			Password               = $teamcityPass
+			PasswordChangeRequired = $false
+			PasswordNeverExpires   = $true
+		}
+
 		WindowsFeatureSet DMZStorageServices
 		{
 			Name   = @(
@@ -268,13 +280,13 @@ Configuration NightlyTestServerv3 {
 					$false
 				}
 			}
-			SetScript = {
+			SetScript  = {
 				[Environment]::SetEnvironmentVariable("AZCOPY_AUTO_LOGIN_TYPE", "MSI", "Machine")
 			}
-			GetScript = {
+			GetScript  = {
 				@{ Result = ($env:AZCOPY_AUTO_LOGIN_TYPE) }
 			}
-			DependsOn = "[Script]DownloadAzCopy"
+			DependsOn  = "[Script]DownloadAzCopy"
 		}
 
 		Script WindowsProductKey 
@@ -370,19 +382,19 @@ Configuration NightlyTestServerv3 {
 					$false
 				}
 			}
-			SetScript = {
+			SetScript  = {
 				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/AutoUpdate.ps1" `
-					"$using:dsoRoot\AutoUpdate.ps1" --overwrite=true --output-level="essential") | Out-String
+						"$using:dsoRoot\AutoUpdate.ps1" --overwrite=true --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
 					throw (("Copy error. $result"))
 				}
 				powershell.exe -ExecutionPolicy Bypass -File "$using:dsoRoot\AutoUpdate.ps1"
 			}
-			GetScript = {
+			GetScript  = {
 				@{ Result = (Get-ScheduledTask -TaskName "egobrane Updates" -ErrorAction SilentlyContinue) }
 			}
-			DependsOn = "[Script]SetAzCopyAutoLoginVariable"
+			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
 		}
 
 		Script DownloadNet48
@@ -496,6 +508,43 @@ Configuration NightlyTestServerv3 {
 			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
 		}
 		
+		Script DuoInstall
+		{
+			TestScript = {
+				$duoInstall = "Duo Authentication for Windows Logon x64"
+				$installed = (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
+					Where-Object { $_.DisplayName -eq $duoInstall }) -ne $null
+				Remove-Item "$using:dsoLocalResources\duo-installer.exe" -Force -Confirm -ErrorAction SilentlyContinue
+				if (-Not $installed)
+				{
+					$false
+				}
+				else
+				{
+					$true
+				}
+			}
+			SetScript  = {
+				$duoPath = Join-Path $using:dsoLocalResources "duo-installer.exe"
+				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot\duo-win-login-4.2.0.exe" `
+						$duoPath --output-level="essential") | Out-String
+				if($LASTEXITCODE -ne 0)
+				{
+					throw (("Copy error. $result"))
+				}
+				(& $duoPath /S /V`" /qn IKEY=`"$using:IKey`" SKEY=`"$using:SKey`" HOST="api-7fe218fe.duosecurity.com" AUTOPUSH="#1" FAILOPEN="#0" RDPONLY="#0" UAC_PROTECTMODE="#2"`") 
+			}
+			GetScript  = {
+				@{ Result = (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
+						Where-Object { $_.DisplayName -eq "Duo Authentication for Windows Logon x64" }).DisplayName 
+    }
+			}
+			DependsOn  = @(
+				"[Script]SetAzCopyAutoLoginVariable"
+				"[Script]DomainJoin"
+			)
+		}
+
 		Script DomainJoin
 		{
 			Testscript = {
@@ -902,20 +951,17 @@ Configuration NightlyTestServerv3 {
 				$false
 			}
 			SetScript  = {
-				$attempt = 0
-				do {
-					$attempt++
+				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
+						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+				if($LASTEXITCODE -ne 0)
+				{
 					$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
-					"$using:policyPath" --overwrite-ifSourceNewer --output-level="essential") | Out-String
-					if($LASTEXITCODE -eq 0) {break}
-					if($attempt -ge 5)
+							"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+					if($LASTEXITCODE -ne 0)
 					{
 						throw (("Copy error. $result"))
 					}
-					$error.Clear()
-					$LASTEXITCODE = 0
-					Start-Sleep -Seconds 1
-				} while ($attempt -le 5)
+				}
 				Set-AppLockerPolicy -XmlPolicy "$using:policyPath"
 			}
 			GetScript  = {

@@ -346,7 +346,7 @@ $false
 
 
 
-if (($env:AZCOPY_AUTO_LOGIN_TYPE) -eq "MSI")
+if (($env:AZCOPY4) -eq "MSI")
 {
 $true
 }
@@ -354,3 +354,71 @@ else
 {
 $false
 }
+
+Set-Item -Path Env:AZCOPY3_AUTO_LOGIN_TYPE -Value "MSI"
+
+[Environment]::SetEnvironmentVariable("AZCOPY4","MSI","Machine")
+
+@{ Result = ($env:AZCOPY_AUTO_LOGIN_TYPE) }
+
+Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory"
+
+# Get the role managemnet policy assignment for this role:
+$AzureADRole = 'Application Administrator'
+
+$PolicyAssignment = Get-MgPolicyRoleManagementPolicyAssignment -Filter "scopeId eq '/' and scopeType eq 'DirectoryRole' and roleDefinitionId eq '$(($AzureAdRoleTemplates | where DisplayName -eq $AzureADRole).Id)'" -ExpandProperty "policy(`$expand=rules)"
+
+# Get all policy rules belonging to this role management policy:
+$PolicyRules = Get-MgPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $Policy.Id
+
+$PolicyRules | Select-Object Id | Sort-Object Id
+
+foreach ($Rule in ($PolicyRules | Sort-Object Id)) {
+  Write-Host "------------------------------"
+  $Rule.Id
+  Write-Host ""
+  $Rule.ToJsonString()
+}
+
+$configType = (Get-ChildItem -Path "\\$targetHost\c`$\ClusterStorage\SSD_Mirror\Hyper-V\$hostName\Virtual Machines\" | Out-String -Stream)
+if ($configType -like '*xml*')
+{
+	$importfile = (Get-ChildItem -Path "\\$targetHost\c`$\ClusterStorage\SSD_Mirror\Hyper-V\$hostName\Virtual Machines\*.xml").Name
+}
+elseif ($configType -like '*vmcx*')
+{
+	$importFile = (Get-ChildItem -Path "\\$targetHost\c`$\ClusterStorage\SSD_Mirror\Hyper-V\$hostName\Virtual Machines\*.vmcx").Name
+}
+else
+{
+	Read-Host -Prompt "Configuration File not found. Please verify source and destination folders for its presence."
+}
+
+$importPath = Join-Path C:\ $importFile
+
+Write-Host "Get rid of this green line! $importPath"
+
+
+param(
+	[Alias("Target host: (vm3.aad.egobrane.com or vm4.aad.egobrane.com)")]
+	[ValidateSet("vm3.aad.egobrane.com", "vm4.aad.egobrane.com")]
+	[string]$targetHost
+)
+
+$targetHost = Read-Host "Enter FQDN of target Hyper-V system (vm3.aad.egobrane.com or vm4.aad.egobrane.com)"
+if ($targetHost -ne 'vm3.aad.egobrane.com' -or 'vm4.aad.egobrane.com')
+{
+	$targetHost = Read-Host "Input not accepted. Please enter vm3.aad.egobrane.com or vm4.aad.egobrane.com"
+}
+
+$settings =
+@{
+	executionDate = get-date -Format "yyyy-MM-dd HH:mm:ss";
+	scriptVersion = "v1.0";
+	installer = "node-v21.2.0-x64.msi"; #https://nodejs.org/en/download/
+	hash = "4d91b9e830054d447418ea3d2bce5dc445f593d4c8a66694fb34191a4cea1e57";
+	installer_x86 = "node-v21.2.0-x86.msi";
+	hash_x86 = "f3ac006fa46ee4c64e42a607c7f6ba5b66a48f4d78b306e27c8e31dc6a394417";
+}
+
+Write-Host "Installer: $($settings.installer)"

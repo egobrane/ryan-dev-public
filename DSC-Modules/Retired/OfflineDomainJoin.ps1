@@ -5,9 +5,9 @@ Configuration OfflineDomainJoin {
 
     Node 'localhost' {
 
-        OfflineDomainJoin ACISSCOM
+        OfflineDomainJoin egobraneCOM
         {
-            RequestFile = "C:\ACISS\OfflineDomainJoinTest.txt"
+            RequestFile = "C:\egobrane\OfflineDomainJoinTest.txt"
             IsSingleInstance = "Yes"
             DependsOn = "[Archive]DMZResource"
         }

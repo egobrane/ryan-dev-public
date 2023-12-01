@@ -94,10 +94,10 @@ Configuration GlobalApplockerDeploymentv3 {
 					$false
 				}
 			}
-			SetScript = {
+			SetScript  = {
 				[Environment]::SetEnvironmentVariable("AZCOPY_AUTO_LOGIN_TYPE", "MSI", "Machine")
 			}
-			GetScript = {
+			GetScript  = {
 				@{ Result = ($env:AZCOPY_AUTO_LOGIN_TYPE) }
 			}
 		}		
@@ -114,19 +114,19 @@ Configuration GlobalApplockerDeploymentv3 {
 					$false
 				}
 			}
-			SetScript = {
+			SetScript  = {
 				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/AutoUpdate.ps1" `
-					"$using:dsoRoot\AutoUpdate.ps1" --overwrite=true --output-level="essential") | Out-String
+						"$using:dsoRoot\AutoUpdate.ps1" --overwrite=true --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
 					throw (("Copy error. $result"))
 				}
 				powershell.exe -ExecutionPolicy Bypass -File "$using:dsoRoot\AutoUpdate.ps1"
 			}
-			GetScript = {
+			GetScript  = {
 				@{ Result = (Get-ScheduledTask -TaskName "egobrane Updates" -ErrorAction SilentlyContinue) }
 			}
-			DependsOn = "[Script]SetAzCopyAutoLoginVariable"
+			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
 		}
 
 		#Check if remote policy has changed and downloads latest policy if so
@@ -136,20 +136,17 @@ Configuration GlobalApplockerDeploymentv3 {
 				$false
 			}
 			SetScript  = {
-				$attempt = 0
-				do {
-					$attempt++
+				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
+						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+				if($LASTEXITCODE -ne 0)
+				{
 					$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
-					"$using:policyPath" --overwrite-ifSourceNewer --output-level="essential") | Out-String
-					if($LASTEXITCODE -eq 0) {break}
-					if($attempt -ge 5)
+						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+					if($LASTEXITCODE -ne 0)
 					{
 						throw (("Copy error. $result"))
 					}
-					$error.Clear()
-					$LASTEXITCODE = 0
-					Start-Sleep -Seconds 1
-				} while ($attempt -le 5)
+				}
 				Set-AppLockerPolicy -XmlPolicy "$using:policyPath"
 			}
 			GetScript  = {

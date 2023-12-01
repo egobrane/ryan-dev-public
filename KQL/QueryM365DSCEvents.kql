@@ -1,0 +1,5 @@
+Event
+| project TimeGenerated, Source, EventLog, Computer, RenderedDescription
+| where EventLog == "M365DSC"
+| where RenderedDescription has "ConfigurationDrift"
+| where TimeGenerated > ago(1h)

@@ -1,7 +1,25 @@
-AzureDiagnostics 
-|where OperationName == "DscNodeStatusData"
-|project TimeGenerated, Category, NodeName_s, NodeComplianceStatus_s, DscReportStatus_s, ResourceGroup
-|where NodeComplianceStatus_s !contains "Compliant"
-|where TimeGenerated > ago(2h)
-|summarize Events=count() by NodeName_s
-|where Events > 1
+// query machines that are non compliant
+AzureDiagnostics
+| where ResultDescription == "Dsc Node Compliance Status"
+    and ResultType != "Compliant"
+| project
+    TimeGenerated,
+    NodeName_s,
+    DscResourceId_s,
+    ResultDescription,
+    DscResourceName_s,
+    DscResourceStatus_s,
+    ErrorMessage_s
+
+// query which failures resulted in non compliance
+AzureDiagnostics
+| where OperationName == "DscResourceStatusData"
+    and ResultType != "Compliant"
+| project
+    TimeGenerated,
+    NodeName_s,
+    DscResourceId_s,
+    ResultDescription,
+    DscResourceName_s,
+    DscResourceStatus_s,
+    ErrorMessage_s

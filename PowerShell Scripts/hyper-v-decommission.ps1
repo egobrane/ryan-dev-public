@@ -1,6 +1,6 @@
 $HostNames = @(
-    'hostname',
-	'other-hostname'
+    'egobrane',
+    'DmzDemo'
 )
 
 foreach ($HostName in $HostNames) {

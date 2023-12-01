@@ -1,98 +1,39 @@
-Configuration DmzSQLServerv4 {
+Configuration VMHost {
 
-	#   This script has the following known issues
-	#1. Currently points to devsecopsdev in azure
 	param (
 		[Parameter(Mandatory = $true)]
-		[string]$hostName
+		[string]$hostName = "localhost"
 	)
-    
-	#Import Modules for all necessary DSC resources - must be in Azure Automation
-	Import-DscResource -ModuleName PSDesiredStateConfiguration 
-	Import-DscResource -ModuleName DSCR_PowerPlan
+
+	Import-DscResource -ModuleName PSDesiredStateConfiguration
 
 	$dsoStorageRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecopsdev/scripts/DSC/Resources"
 	$dsoAppLockerRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecopsdev/scripts/DSC/AppLocker"
 	$azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows"
 
 	$dsoRoot = 'C:\egobrane\$DevSecOps'
-	$dsoLocalResources = Join-Path $dsoRoot "Resources"
 	$azCopyPath = Join-Path $dsoRoot "azcopy.exe"
 	$policyPath = Join-Path $dsoRoot "Applocker-Global-pol.xml"
 
-	$IKey = Get-AutomationVariable -Name "DuoIKey"
-	$SKey = Get-AutomationVariable -Name "DuoSKey"
-	$egobranelaPass = Get-AutomationPSCredential -Name "$hostName-egobranela"
-	$ProductKey = Get-AutomationVariable -Name "Server2022Key"
 
-	#Specify node assignment
 	Node $hostName {
 
 
-		#Registry Resources
-		Registry FIPSAlgorithmPolicy
-		{
-			Ensure    = "Present"
-			Key       = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa\FIPSAlgorithmPolicy"
-			ValueName = "Enabled"
-			ValueType = "Dword"
-			ValueData = "1"
-			Force     = $true
-		}
-
-		Registry TerminalServer
-		{
-			Ensure    = "Present"
-			Key       = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server"
-			ValueName = "fSingleSessionPerUser"
-			ValueType = "Dword"
-			ValueData = "0"
-			Force     = $true
-		}
-
-
-		#PowerPlan Resources
-		cPowerPlan Balanced
-		{
-			Ensure = "Present"
-			GUID   = "SCHEME_BALANCED"
-			Name   = "Balanced"
-			Active = $true
-		}
-
-		cPowerPlanSetting MonitorTimeout
-		{
-			PlanGuid    = "SCHEME_BALANCED"
-			SettingGuid = "VIDEOIDLE"
-			Value       = 0
-			AcDc        = "AC"
-		}
-
-
-		#User Resources
-		User egobranela
-		{
-			Ensure                 = "Present"
-			Disabled               = $false
-			UserName               = "egobranela"
-			FullName               = "egobranela"
-			Password               = $egobranelaPass
-			PasswordChangeRequired = $false
-			PasswordNeverExpires   = $true
-		}
-
-
-		#File and Directory Resources
 		File DevSecOps
 		{
-			Ensure          = "Present"
-			Type            = "Directory"
+			Ensure = "Present"
+			Type = "Directory"
 			DestinationPath = $dsoRoot
-			Attributes      = "Hidden"
+			Attributes = "Hidden"
 		}
 
+		File egobrane
+		{
+			Ensure = "Present"
+			Type = "Directory"
+			DestinationPath = "C:\egobrane"
+		}
 
-		#Powershell Script Resources
 		Script DownloadAzCopy
 		{
 			TestScript = {
@@ -105,7 +46,7 @@ Configuration DmzSQLServerv4 {
 					$false
 				}
 			}
-			SetScript  = {
+			SetScript = {
 				$ProgressPreference = "SilentlyContinue"
 				$azCopyZipUrl = (Invoke-WebRequest -UseBasicParsing -Uri $using:azCopyDownloadUrl -MaximumRedirection 0 -ErrorAction SilentlyContinue).headers.location
 				$azCopyZipFile = Split-Path $azCopyZipUrl -Leaf
@@ -120,10 +61,10 @@ Configuration DmzSQLServerv4 {
 				$azCopy = (Get-ChildItem -Path $azCopyDir -Recurse -File -Filter "azcopy.exe").FullName
 				Copy-Item $azCopy $using:azCopyPath
 			}
-			GetScript  = {
+			GetScript = {
 				@{ Result = (Test-Path $using:azCopyPath) }
 			}
-			DependsOn  = "[File]DevSecOps"
+			DependsOn = "[File]DevSecOps"
 		}
 
 		Script SetAzCopyAutoLoginVariable
@@ -138,79 +79,13 @@ Configuration DmzSQLServerv4 {
 					$false
 				}
 			}
-			SetScript  = {
+			SetScript = {
 				[Environment]::SetEnvironmentVariable("AZCOPY_AUTO_LOGIN_TYPE", "MSI", "Machine")
 			}
-			GetScript  = {
+			GetScript = {
 				@{ Result = ($env:AZCOPY_AUTO_LOGIN_TYPE) }
 			}
-			DependsOn  = "[Script]DownloadAzCopy"
-		}
-
-		Script WindowsProductKey
-		{
-			TestScript = {
-				$ProductKeyExpression = $using:ProductKey
-				$PartialProductKey = $ProductKeyExpression.SubString($ProductKeyExpression.length - 5, 5)
-				if ((Get-CimInstance -ClassName SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -ne $null } |
-						Select-Object -Property PartialProductKey | Out-String -Stream) -like "*$PartialProductKey*")
-				{
-					$true
-				}
-				else
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				$Slmgr = 'C:\Windows\System32\slmgr.vbs'
-				$Cscript = 'C:\Windows\System32\cscript.exe'
-				Start-Process -FilePath $Cscript -ArgumentList ($Slmgr, '-ipk', $using:ProductKey) | Out-Null
-				Start-Process -FilePath $Cscript -ArgumentList ($Slmgr, '-ato')
-			}
-			GetScript  = {
-				@{ Result = ((Get-WmiObject -query 'select * from SoftwareLicensingService').OA3xOriginalProductKey) }
-			}
-		}
-
-		Script DuoInstall
-		{
-			TestScript = {
-				$DuoInstall = "Duo Authentication for Windows Logon x64"
-				$Installed = (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |
-					Where-Object { $_.DisplayName -eq $DuoInstall }) -ne $null
-				Remove-Item "$using:dsoRoot\duo-installer.exe" -Force -Confirm -ErrorAction SilentlyContinue
-				if (-Not $Installed)
-				{
-					$false
-				}
-				else
-				{
-					$true
-				}
-			}
-			SetScript  = {
-				$duoPath = Join-Path $using:dsoLocalResources "duo-installer.exe"
-				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/duo-win-login-4.2.0.exe" `
-						$duoPath --output-level="essential") | Out-String
-				if($LASTEXITCODE -ne 0)
-				{
-					throw (("Copy error. $result"))
-				}
-				(& $duoPath /S /V`" /qn IKEY=`"$using:IKey`" SKEY=`"$using:SKey`" HOST="api-7fe218fe.duosecurity.com" AUTOPUSH="#1" FAILOPEN="#0" RDPONLY="#0" UAC_PROTECTMODE="#2"`") 
-			}
-			GetScript  = {
-				@{
-					GetScript  = $GetScript
-					SetScript  = $SetScript
-					TestScript = $TestScript
-					Result     = ('True' -in (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -eq $DuoInstall }))
-				}
-			}
-			DependsOn  = @(
-				"[Script]OfflineDomainJoin"
-				"[Script]SetAzCopyAutoLoginVariable"
-			)
+			DependsOn = "[Script]DownloadAzCopy"
 		}
 
 		Script DownloadAutoUpdate
@@ -225,84 +100,25 @@ Configuration DmzSQLServerv4 {
 					$false
 				}
 			}
-			SetScript  = {
+			SetScript = {
 				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/AutoUpdate.ps1" `
-						"$using:dsoRoot\AutoUpdate.ps1" --overwrite=true --output-level="essential") | Out-String
+					"$using:dsoRoot\AutoUpdate.ps1" --overwrite=true --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
 					throw (("Copy error. $result"))
 				}
 				powershell.exe -ExecutionPolicy Bypass -File "$using:dsoRoot\AutoUpdate.ps1"
 			}
-			GetScript  = {
+			GetScript = {
 				@{ Result = (Get-ScheduledTask -TaskName "egobrane Updates" -ErrorAction SilentlyContinue) }
 			}
-			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
+			DependsOn = "[Script]SetAzCopyAutoLoginVariable"
 		}
 
-		Script OfflineDomainJoin
+		Script ExecutionPolicyRemoteSigned
 		{
 			TestScript = {
-				Remove-Item "$using:dsoRoot\ODJ.txt" -Force -Confirm -ErrorAction SilentlyContinue
-				if (((Get-WmiObject Win32_ComputerSystem).Domain | Out-String -Stream) -like '*egobrane*')
-				{
-					$true
-				}
-				else 
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/ODJ/$using:hostName.txt" `
-						"$using:dsoLocalResources\ODJ.txt" --output-level="essential") | Out-String
-				if($LASTEXITCODE -ne 0)
-				{
-					throw (("Copy error. $result"))
-				}
-				djoin.exe /requestodj /psite "DmzHQ" /loadfile "$using:dsoLocalResources\ODJ.txt" /windowspath %systemroot% /localos
-			}
-			GetScript  = {
-				@{
-					GetScript  = $GetScript
-					SetScript  = $SetScript
-					TestScript = $TestScript
-					Result     = ('True' -in (((Get-WmiObject Win32_ComputerSystem).Domain | Out-String -Stream) -like '*egobraneCOM*'))
-				}
-			}
-			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
-		}
-
-		Script EnableRDP
-		{
-			TestScript = {
-				if ((Get-NetFirewallRule -DisplayGroup "Remote Desktop").Enabled -ne "True")
-				{
-					$false 
-				}
-				else
-				{
-					$true 
-				}                    
-			}
-			SetScript  = {
-				Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-			}
-			GetScript  = {
-				@{ Result = (Get-NetFirewallRule -DisplayGroup "Remote Desktop") }
-			}
-		}
-
-		Script EnableRDPRegistry
-		{
-			TestScript = {
-				$tsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server'
-				$winStationsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
-
-				$fDenyTSConnectionsRegistry = (Get-ItemProperty -Path $tsRegistryKey -Name 'fDenyTSConnections').fDenyTSConnections
-				$userAuthenticationRegistry = (Get-ItemProperty -Path $winStationsRegistryKey -Name 'UserAuthentication').UserAuthentication
-
-				if (($fDenyTSConnectionsRegistry -eq 0) -and ($userAuthenticationRegistry -eq 1))
+				if ((Get-ExecutionPolicy) -eq "RemoteSigned")
 				{
 					$true
 				}
@@ -311,79 +127,15 @@ Configuration DmzSQLServerv4 {
 					$false
 				}
 			}
-			SetScript  = {
-				$tsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server'
-				$winStationsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
-
-				Set-ItemProperty -Path $tsRegistryKey -Name 'fDenyTSConnections' -Value 0
-				Set-ItemProperty -Path $winStationsRegistryKey -Name 'UserAuthentication' -Value 1
+			SetScript = {
+				Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+				Set-ExecutionPolicy RemoteSigned -Scope LocalMachine -Force
 			}
-			GetScript  = {
-				@{ Result = (Get-ItemProperty -Path ($tsRegistryKey, $winStationsRegistryKey)) }
+			GetScript = {
+				@{ Result = (Get-ExecutionPolicy) }
 			}
 		}
 
-		Script SetTimeZone
-		{
-			Testscript = {
-				if ((Get-TimeZone | Out-String -Stream) -like "*Eastern Standard Time*")
-				{
-					$true
-				}
-				else
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				Set-TimeZone -Name 'Eastern Standard Time'
-			}
-			GetScript  = {
-				@{ Result = (Get-TimeZone) }
-			}
-		}
-
-		Script LocalAdminDMZRole
-		{
-			TestScript = {
-				if ((Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) -like '*egobraneCOM\$8G4000-3S2D3LMFN9RL*' -and (Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) -like '*egobranela*')
-				{
-					$true 
-				}
-				else
-				{
-					$false 
-				}
-			}
-			SetScript  = {
-				Add-LocalGroupMember -Group "Administrators" -Member 'egobraneCOM\$8G4000-3S2D3LMFN9RL', 'egobranela'
-			}
-			GetScript  = {
-				@{ Result = (Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) }
-			}
-			DependsOn  = "[Script]OfflineDomainJoin"
-		}
-
-		Script DisableLocalAdminUser
-		{
-			TestScript = {
-				if ((Get-LocalUser -Name "Administrator" | Out-String -Stream) -like "*True*")
-				{
-					$false 
-				}
-				else
-				{
-					$true 
-				}
-			}
-			SetScript  = {
-				Disable-LocalUser -Name "Administrator"
-			}
-			GetScript  = {
-				@{ Result = (Get-LocalUser -Name "Administrator") }
-			}
-		}
-            
 		Script CryptoWebServerStrict
 		{
 			TestScript = {
@@ -543,22 +295,22 @@ Configuration DmzSQLServerv4 {
 		#Begin AppLocker Configuration Block
 		Service AppIDsvc
 		{
-			Name           = "AppIDSvc"
-			State          = "Running"
-			BuiltinAccount = "LocalService"
-			DependsOn      = @(
+			Name = "AppIDSvc"
+			State = "Running"
+			BuiltInAccount = "LocalService"
+			DependsOn = @(
 				"[Script]PolicyUpdate"
 			)
 		}
 
 		Registry AutoStartupAppID
 		{
-			Ensure    = "Present"
-			Key       = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AppIDSvc"
+			Ensure = "Present"
+			Key = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AppIDSvc"
 			ValueName = "Start"
 			ValueType = "Dword"
 			ValueData = "2"
-			Force     = $true
+			Force = $true
 		}
 
 		#Check if remote policy has changed and downloads latest policy if so
@@ -567,9 +319,9 @@ Configuration DmzSQLServerv4 {
 			TestScript = {
 				$false
 			}
-			SetScript  = {
+			SetScript = {
 				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
-						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+					"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
 					$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
@@ -581,15 +333,15 @@ Configuration DmzSQLServerv4 {
 				}
 				Set-AppLockerPolicy -XmlPolicy "$using:policyPath"
 			}
-			GetScript  = {
+			GetScript = {
 				@{
-					GetScript  = $GetScript
-					SetScript  = $SetScript
+					GetScript = $GetScript
+					SetScript = $TestScript
 					TestScript = $TestScript
-					Result     = (Get-Content "$using:policyPath")
+					Result = (Get-Content "$using:policyPath")
 				}
 			}
-			DependsOn  = "[Script]SetAzCopyAutoLoginVariable"
-		}				
+			DependsOn = "[Script]SetAzCopyAutoLoginVariable"
+		}
 	}
 }

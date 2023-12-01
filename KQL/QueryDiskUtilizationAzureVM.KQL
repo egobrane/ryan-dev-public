@@ -1,0 +1,24 @@
+Perf
+| where
+    ObjectName == "LogicalDisk"
+    and CounterName in ("Free Megabytes", "% Free Space")
+| summarize
+    FreeMB = min(case(CounterName == "Free Megabytes", CounterValue, 99999999.0)),
+    FreePercent = min(case(CounterName == "% Free Space", CounterValue, 99999999.0))
+    by Computer, InstanceName
+| where
+    strlen(InstanceName) == 2
+    and
+    (
+        InstanceName contains "F:"
+        or (FreeMB / (FreePercent / 100)) > 1024000
+    )
+| project
+    Computer,
+    InstanceName,
+    FreePercent = round(FreePercent, 0),
+    FreeGB = round(FreeMB / 1000, 0),
+    TotalGB = round(FreeMB / (FreePercent / 100) / 1000, 0)
+| sort by
+    Computer asc
+ 
