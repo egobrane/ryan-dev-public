@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\bin\Debug\net7.0\p16-Develop Conditional Branches and Loops.exe
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\bin\Debug\net7.0\p16-Develop Conditional Branches and Loops.deps.json
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\bin\Debug\net7.0\p16-Develop Conditional Branches and Loops.runtimeconfig.json
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\bin\Debug\net7.0\p16-Develop Conditional Branches and Loops.dll
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\bin\Debug\net7.0\p16-Develop Conditional Branches and Loops.pdb
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\obj\Debug\net7.0\p16-Develop Conditional Branches and Loops.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\obj\Debug\net7.0\p16-Develop Conditional Branches and Loops.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\obj\Debug\net7.0\p16-Develop Conditional Branches and Loops.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\obj\Debug\net7.0\p16-Develop Conditional Branches and Loops.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\obj\Debug\net7.0\p16-Develop Conditional Branches and Loops.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\obj\Debug\net7.0\p16-Develop Conditional Branches and Loops.dll
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\obj\Debug\net7.0\refint\p16-Develop Conditional Branches and Loops.dll
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\obj\Debug\net7.0\p16-Develop Conditional Branches and Loops.pdb
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\obj\Debug\net7.0\p16-Develop Conditional Branches and Loops.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\p18-Develop Conditional Branches and Loops\obj\Debug\net7.0\ref\p16-Develop Conditional Branches and Loops.dll

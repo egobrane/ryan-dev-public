@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Testing Code Blocks\bin\Debug\net7.0\Testing Code Blocks.exe
+C:\Dev\ryan-dev\C#\Testing Code Blocks\bin\Debug\net7.0\Testing Code Blocks.deps.json
+C:\Dev\ryan-dev\C#\Testing Code Blocks\bin\Debug\net7.0\Testing Code Blocks.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Testing Code Blocks\bin\Debug\net7.0\Testing Code Blocks.dll
+C:\Dev\ryan-dev\C#\Testing Code Blocks\bin\Debug\net7.0\Testing Code Blocks.pdb
+C:\Dev\ryan-dev\C#\Testing Code Blocks\obj\Debug\net7.0\Testing Code Blocks.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Testing Code Blocks\obj\Debug\net7.0\Testing Code Blocks.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Testing Code Blocks\obj\Debug\net7.0\Testing Code Blocks.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Testing Code Blocks\obj\Debug\net7.0\Testing Code Blocks.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Testing Code Blocks\obj\Debug\net7.0\Testing Code Blocks.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Testing Code Blocks\obj\Debug\net7.0\Testing Code Blocks.dll
+C:\Dev\ryan-dev\C#\Testing Code Blocks\obj\Debug\net7.0\refint\Testing Code Blocks.dll
+C:\Dev\ryan-dev\C#\Testing Code Blocks\obj\Debug\net7.0\Testing Code Blocks.pdb
+C:\Dev\ryan-dev\C#\Testing Code Blocks\obj\Debug\net7.0\Testing Code Blocks.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Testing Code Blocks\obj\Debug\net7.0\ref\Testing Code Blocks.dll

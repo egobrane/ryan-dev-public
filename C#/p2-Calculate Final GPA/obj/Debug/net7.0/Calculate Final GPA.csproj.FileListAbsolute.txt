@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Calculate Final GPA\obj\Debug\net7.0\Calculate Final GPA.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Calculate Final GPA\obj\Debug\net7.0\Calculate Final GPA.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Calculate Final GPA\obj\Debug\net7.0\Calculate Final GPA.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Calculate Final GPA\obj\Debug\net7.0\Calculate Final GPA.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Calculate Final GPA\obj\Debug\net7.0\Calculate Final GPA.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Calculate Final GPA\bin\Debug\net7.0\Calculate Final GPA.exe
+C:\Dev\ryan-dev\C#\Calculate Final GPA\bin\Debug\net7.0\Calculate Final GPA.deps.json
+C:\Dev\ryan-dev\C#\Calculate Final GPA\bin\Debug\net7.0\Calculate Final GPA.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Calculate Final GPA\bin\Debug\net7.0\Calculate Final GPA.dll
+C:\Dev\ryan-dev\C#\Calculate Final GPA\bin\Debug\net7.0\Calculate Final GPA.pdb
+C:\Dev\ryan-dev\C#\Calculate Final GPA\obj\Debug\net7.0\Calculate Final GPA.dll
+C:\Dev\ryan-dev\C#\Calculate Final GPA\obj\Debug\net7.0\refint\Calculate Final GPA.dll
+C:\Dev\ryan-dev\C#\Calculate Final GPA\obj\Debug\net7.0\Calculate Final GPA.pdb
+C:\Dev\ryan-dev\C#\Calculate Final GPA\obj\Debug\net7.0\Calculate Final GPA.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Calculate Final GPA\obj\Debug\net7.0\ref\Calculate Final GPA.dll

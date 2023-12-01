@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Logic Testing\bin\Debug\net7.0\Logic Testing.exe
+C:\Dev\ryan-dev\C#\Logic Testing\bin\Debug\net7.0\Logic Testing.deps.json
+C:\Dev\ryan-dev\C#\Logic Testing\bin\Debug\net7.0\Logic Testing.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Logic Testing\bin\Debug\net7.0\Logic Testing.dll
+C:\Dev\ryan-dev\C#\Logic Testing\bin\Debug\net7.0\Logic Testing.pdb
+C:\Dev\ryan-dev\C#\Logic Testing\obj\Debug\net7.0\Logic Testing.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Logic Testing\obj\Debug\net7.0\Logic Testing.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Logic Testing\obj\Debug\net7.0\Logic Testing.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Logic Testing\obj\Debug\net7.0\Logic Testing.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Logic Testing\obj\Debug\net7.0\Logic Testing.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Logic Testing\obj\Debug\net7.0\Logic Testing.dll
+C:\Dev\ryan-dev\C#\Logic Testing\obj\Debug\net7.0\refint\Logic Testing.dll
+C:\Dev\ryan-dev\C#\Logic Testing\obj\Debug\net7.0\Logic Testing.pdb
+C:\Dev\ryan-dev\C#\Logic Testing\obj\Debug\net7.0\Logic Testing.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Logic Testing\obj\Debug\net7.0\ref\Logic Testing.dll

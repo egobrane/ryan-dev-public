@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Project Validate String Input\bin\Debug\net7.0\Project Validate String Input.exe
+C:\Dev\ryan-dev\C#\Project Validate String Input\bin\Debug\net7.0\Project Validate String Input.deps.json
+C:\Dev\ryan-dev\C#\Project Validate String Input\bin\Debug\net7.0\Project Validate String Input.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Project Validate String Input\bin\Debug\net7.0\Project Validate String Input.dll
+C:\Dev\ryan-dev\C#\Project Validate String Input\bin\Debug\net7.0\Project Validate String Input.pdb
+C:\Dev\ryan-dev\C#\Project Validate String Input\obj\Debug\net7.0\Project Validate String Input.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Project Validate String Input\obj\Debug\net7.0\Project Validate String Input.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Project Validate String Input\obj\Debug\net7.0\Project Validate String Input.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Project Validate String Input\obj\Debug\net7.0\Project Validate String Input.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Project Validate String Input\obj\Debug\net7.0\Project Validate String Input.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Project Validate String Input\obj\Debug\net7.0\Project Validate String Input.dll
+C:\Dev\ryan-dev\C#\Project Validate String Input\obj\Debug\net7.0\refint\Project Validate String Input.dll
+C:\Dev\ryan-dev\C#\Project Validate String Input\obj\Debug\net7.0\Project Validate String Input.pdb
+C:\Dev\ryan-dev\C#\Project Validate String Input\obj\Debug\net7.0\Project Validate String Input.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Project Validate String Input\obj\Debug\net7.0\ref\Project Validate String Input.dll

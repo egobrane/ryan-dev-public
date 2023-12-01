@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Subscription Renewals\bin\Debug\net7.0\Subscription Renewals.exe
+C:\Dev\ryan-dev\C#\Subscription Renewals\bin\Debug\net7.0\Subscription Renewals.deps.json
+C:\Dev\ryan-dev\C#\Subscription Renewals\bin\Debug\net7.0\Subscription Renewals.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Subscription Renewals\bin\Debug\net7.0\Subscription Renewals.dll
+C:\Dev\ryan-dev\C#\Subscription Renewals\bin\Debug\net7.0\Subscription Renewals.pdb
+C:\Dev\ryan-dev\C#\Subscription Renewals\obj\Debug\net7.0\Subscription Renewals.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Subscription Renewals\obj\Debug\net7.0\Subscription Renewals.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Subscription Renewals\obj\Debug\net7.0\Subscription Renewals.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Subscription Renewals\obj\Debug\net7.0\Subscription Renewals.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Subscription Renewals\obj\Debug\net7.0\Subscription Renewals.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Subscription Renewals\obj\Debug\net7.0\Subscription Renewals.dll
+C:\Dev\ryan-dev\C#\Subscription Renewals\obj\Debug\net7.0\refint\Subscription Renewals.dll
+C:\Dev\ryan-dev\C#\Subscription Renewals\obj\Debug\net7.0\Subscription Renewals.pdb
+C:\Dev\ryan-dev\C#\Subscription Renewals\obj\Debug\net7.0\Subscription Renewals.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Subscription Renewals\obj\Debug\net7.0\ref\Subscription Renewals.dll

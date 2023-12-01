@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Testing Boolean\bin\Debug\net7.0\Testing Boolean.exe
+C:\Dev\ryan-dev\C#\Testing Boolean\bin\Debug\net7.0\Testing Boolean.deps.json
+C:\Dev\ryan-dev\C#\Testing Boolean\bin\Debug\net7.0\Testing Boolean.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Testing Boolean\bin\Debug\net7.0\Testing Boolean.dll
+C:\Dev\ryan-dev\C#\Testing Boolean\bin\Debug\net7.0\Testing Boolean.pdb
+C:\Dev\ryan-dev\C#\Testing Boolean\obj\Debug\net7.0\Testing Boolean.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Testing Boolean\obj\Debug\net7.0\Testing Boolean.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Testing Boolean\obj\Debug\net7.0\Testing Boolean.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Testing Boolean\obj\Debug\net7.0\Testing Boolean.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Testing Boolean\obj\Debug\net7.0\Testing Boolean.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Testing Boolean\obj\Debug\net7.0\Testing Boolean.dll
+C:\Dev\ryan-dev\C#\Testing Boolean\obj\Debug\net7.0\refint\Testing Boolean.dll
+C:\Dev\ryan-dev\C#\Testing Boolean\obj\Debug\net7.0\Testing Boolean.pdb
+C:\Dev\ryan-dev\C#\Testing Boolean\obj\Debug\net7.0\Testing Boolean.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Testing Boolean\obj\Debug\net7.0\ref\Testing Boolean.dll

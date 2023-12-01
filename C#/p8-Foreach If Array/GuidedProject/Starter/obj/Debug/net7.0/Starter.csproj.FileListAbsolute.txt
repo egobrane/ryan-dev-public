@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\bin\Debug\net7.0\Starter.exe
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\bin\Debug\net7.0\Starter.deps.json
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\bin\Debug\net7.0\Starter.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\bin\Debug\net7.0\Starter.dll
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\bin\Debug\net7.0\Starter.pdb
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\obj\Debug\net7.0\Starter.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\obj\Debug\net7.0\Starter.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\obj\Debug\net7.0\Starter.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\obj\Debug\net7.0\Starter.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\obj\Debug\net7.0\Starter.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\obj\Debug\net7.0\Starter.dll
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\obj\Debug\net7.0\refint\Starter.dll
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\obj\Debug\net7.0\Starter.pdb
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\obj\Debug\net7.0\Starter.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Foreach If Array\GuidedProject\Starter\obj\Debug\net7.0\ref\Starter.dll

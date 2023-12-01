@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Testing Arrays\bin\Debug\net7.0\Testing Arrays.exe
+C:\Dev\ryan-dev\C#\Testing Arrays\bin\Debug\net7.0\Testing Arrays.deps.json
+C:\Dev\ryan-dev\C#\Testing Arrays\bin\Debug\net7.0\Testing Arrays.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Testing Arrays\bin\Debug\net7.0\Testing Arrays.dll
+C:\Dev\ryan-dev\C#\Testing Arrays\bin\Debug\net7.0\Testing Arrays.pdb
+C:\Dev\ryan-dev\C#\Testing Arrays\obj\Debug\net7.0\Testing Arrays.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Testing Arrays\obj\Debug\net7.0\Testing Arrays.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Testing Arrays\obj\Debug\net7.0\Testing Arrays.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Testing Arrays\obj\Debug\net7.0\Testing Arrays.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Testing Arrays\obj\Debug\net7.0\Testing Arrays.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Testing Arrays\obj\Debug\net7.0\Testing Arrays.dll
+C:\Dev\ryan-dev\C#\Testing Arrays\obj\Debug\net7.0\refint\Testing Arrays.dll
+C:\Dev\ryan-dev\C#\Testing Arrays\obj\Debug\net7.0\Testing Arrays.pdb
+C:\Dev\ryan-dev\C#\Testing Arrays\obj\Debug\net7.0\Testing Arrays.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Testing Arrays\obj\Debug\net7.0\ref\Testing Arrays.dll

@@ -1,0 +1,30 @@
+C:\Dev\ryan-dev\C#\bin\Debug\net7.0\C#.exe
+C:\Dev\ryan-dev\C#\bin\Debug\net7.0\C#.deps.json
+C:\Dev\ryan-dev\C#\bin\Debug\net7.0\C#.runtimeconfig.json
+C:\Dev\ryan-dev\C#\bin\Debug\net7.0\C#.dll
+C:\Dev\ryan-dev\C#\bin\Debug\net7.0\C#.pdb
+C:\Dev\ryan-dev\C#\obj\Debug\net7.0\C#.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\obj\Debug\net7.0\C#.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\obj\Debug\net7.0\C#.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\obj\Debug\net7.0\C#.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\obj\Debug\net7.0\C#.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\obj\Debug\net7.0\C#.dll
+C:\Dev\ryan-dev\C#\obj\Debug\net7.0\refint\C#.dll
+C:\Dev\ryan-dev\C#\obj\Debug\net7.0\C#.pdb
+C:\Dev\ryan-dev\C#\obj\Debug\net7.0\C#.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\obj\Debug\net7.0\ref\C#.dll
+C:\Dev\ryan-dev\C#\Calculate Grades\obj\Debug\net7.0\C#.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Calculate Grades\obj\Debug\net7.0\C#.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Calculate Grades\obj\Debug\net7.0\C#.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Calculate Grades\obj\Debug\net7.0\C#.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Calculate Grades\obj\Debug\net7.0\C#.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Calculate Grades\obj\Debug\net7.0\C#.dll
+C:\Dev\ryan-dev\C#\Calculate Grades\obj\Debug\net7.0\refint\C#.dll
+C:\Dev\ryan-dev\C#\Calculate Grades\obj\Debug\net7.0\C#.pdb
+C:\Dev\ryan-dev\C#\Calculate Grades\bin\Debug\net7.0\C#.exe
+C:\Dev\ryan-dev\C#\Calculate Grades\bin\Debug\net7.0\C#.deps.json
+C:\Dev\ryan-dev\C#\Calculate Grades\bin\Debug\net7.0\C#.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Calculate Grades\bin\Debug\net7.0\C#.dll
+C:\Dev\ryan-dev\C#\Calculate Grades\bin\Debug\net7.0\C#.pdb
+C:\Dev\ryan-dev\C#\Calculate Grades\obj\Debug\net7.0\C#.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Calculate Grades\obj\Debug\net7.0\ref\C#.dll

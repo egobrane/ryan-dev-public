@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Project Process String Array\bin\Debug\net7.0\Project Process String Array.exe
+C:\Dev\ryan-dev\C#\Project Process String Array\bin\Debug\net7.0\Project Process String Array.deps.json
+C:\Dev\ryan-dev\C#\Project Process String Array\bin\Debug\net7.0\Project Process String Array.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Project Process String Array\bin\Debug\net7.0\Project Process String Array.dll
+C:\Dev\ryan-dev\C#\Project Process String Array\bin\Debug\net7.0\Project Process String Array.pdb
+C:\Dev\ryan-dev\C#\Project Process String Array\obj\Debug\net7.0\Project Process String Array.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Project Process String Array\obj\Debug\net7.0\Project Process String Array.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Project Process String Array\obj\Debug\net7.0\Project Process String Array.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Project Process String Array\obj\Debug\net7.0\Project Process String Array.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Project Process String Array\obj\Debug\net7.0\Project Process String Array.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Project Process String Array\obj\Debug\net7.0\Project Process String Array.dll
+C:\Dev\ryan-dev\C#\Project Process String Array\obj\Debug\net7.0\refint\Project Process String Array.dll
+C:\Dev\ryan-dev\C#\Project Process String Array\obj\Debug\net7.0\Project Process String Array.pdb
+C:\Dev\ryan-dev\C#\Project Process String Array\obj\Debug\net7.0\Project Process String Array.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Project Process String Array\obj\Debug\net7.0\ref\Project Process String Array.dll

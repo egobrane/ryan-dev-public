@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Library Testing\bin\Debug\net7.0\Library Testing.exe
+C:\Dev\ryan-dev\C#\Library Testing\bin\Debug\net7.0\Library Testing.deps.json
+C:\Dev\ryan-dev\C#\Library Testing\bin\Debug\net7.0\Library Testing.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Library Testing\bin\Debug\net7.0\Library Testing.dll
+C:\Dev\ryan-dev\C#\Library Testing\bin\Debug\net7.0\Library Testing.pdb
+C:\Dev\ryan-dev\C#\Library Testing\obj\Debug\net7.0\Library Testing.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Library Testing\obj\Debug\net7.0\Library Testing.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Library Testing\obj\Debug\net7.0\Library Testing.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Library Testing\obj\Debug\net7.0\Library Testing.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Library Testing\obj\Debug\net7.0\Library Testing.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Library Testing\obj\Debug\net7.0\Library Testing.dll
+C:\Dev\ryan-dev\C#\Library Testing\obj\Debug\net7.0\refint\Library Testing.dll
+C:\Dev\ryan-dev\C#\Library Testing\obj\Debug\net7.0\Library Testing.pdb
+C:\Dev\ryan-dev\C#\Library Testing\obj\Debug\net7.0\Library Testing.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Library Testing\obj\Debug\net7.0\ref\Library Testing.dll

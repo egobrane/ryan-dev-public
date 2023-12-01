@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\Testing Do While Loops\bin\Debug\net7.0\Testing Do While Loops.exe
+C:\Dev\ryan-dev\C#\Testing Do While Loops\bin\Debug\net7.0\Testing Do While Loops.deps.json
+C:\Dev\ryan-dev\C#\Testing Do While Loops\bin\Debug\net7.0\Testing Do While Loops.runtimeconfig.json
+C:\Dev\ryan-dev\C#\Testing Do While Loops\bin\Debug\net7.0\Testing Do While Loops.dll
+C:\Dev\ryan-dev\C#\Testing Do While Loops\bin\Debug\net7.0\Testing Do While Loops.pdb
+C:\Dev\ryan-dev\C#\Testing Do While Loops\obj\Debug\net7.0\Testing Do While Loops.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\Testing Do While Loops\obj\Debug\net7.0\Testing Do While Loops.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\Testing Do While Loops\obj\Debug\net7.0\Testing Do While Loops.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\Testing Do While Loops\obj\Debug\net7.0\Testing Do While Loops.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\Testing Do While Loops\obj\Debug\net7.0\Testing Do While Loops.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\Testing Do While Loops\obj\Debug\net7.0\Testing Do While Loops.dll
+C:\Dev\ryan-dev\C#\Testing Do While Loops\obj\Debug\net7.0\refint\Testing Do While Loops.dll
+C:\Dev\ryan-dev\C#\Testing Do While Loops\obj\Debug\net7.0\Testing Do While Loops.pdb
+C:\Dev\ryan-dev\C#\Testing Do While Loops\obj\Debug\net7.0\Testing Do While Loops.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\Testing Do While Loops\obj\Debug\net7.0\ref\Testing Do While Loops.dll

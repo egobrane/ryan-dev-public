@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library Testing", "Library Testing.csproj", "{160AD805-4F33-473C-B24C-3B42D79766CB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{160AD805-4F33-473C-B24C-3B42D79766CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{160AD805-4F33-473C-B24C-3B42D79766CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{160AD805-4F33-473C-B24C-3B42D79766CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{160AD805-4F33-473C-B24C-3B42D79766CB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {274CB6D9-6C23-4EAA-B00C-AC63CE2EE183}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v7.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v7.0": {
+      "Testing Do While Loops/1.0.0": {
+        "runtime": {
+          "Testing Do While Loops.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Testing Do While Loops/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
