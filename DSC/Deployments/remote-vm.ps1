@@ -1,4 +1,4 @@
-Configuration RemoteVMv2 {
+Configuration RemoteVM {
 
 	param (
 		[Parameter(Mandatory = $true)]
@@ -12,28 +12,32 @@ Configuration RemoteVMv2 {
 
 	Import-DscResource -ModuleName PSDesiredStateConfiguration
 
-	$dsoStorageRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecopsdev/scripts/DSC/Resources"
-	$dsoAppLockerRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecopsdev/scripts/DSC/AppLocker"
+	$azureStorageRoot = "https://egobranemisc.blob.core.uscloudapi.net/cyberops/"
+	$dsoStorageRoot = $azureStorageRoot + "scripts/DSC/Resources"
+	$dsoAppLockerRoot = $azureStorageRoot + "scripts/DSC/AppLocker"
+	$dsoUpdateRoot = $azureStorageRoot + "scripts/Update"
 	$azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows"
 
-	$dsoRoot = 'C:\egobrane\$DevSecOps'
+	$dsoRoot = 'C:\egobrane\$cyberops'
+	$gpoType = "egobranecom-remote"
+	$dsoLocalStorageRoot = Join-Path $dsoRoot "Resources"
 	$azCopyPath = Join-Path $dsoRoot "azcopy.exe"
 	$policyPath = Join-Path $dsoRoot "Applocker-Global-pol.xml"
 
 	Node $hostName {
 
-		File DevSecOps
+		File cyberops
 		{
-			Ensure = "Present"
-			Type = "Directory"
+			Ensure          = "Present"
+			Type            = "Directory"
 			DestinationPath = $dsoRoot
-			Attributes = "Hidden"
+			Attributes      = "Hidden"
 		}
 
 		File egobrane
 		{
-			Ensure = "Present"
-			Type = "Directory"
+			Ensure          = "Present"
+			Type            = "Directory"
 			DestinationPath = "C:\egobrane"
 		}
 
@@ -49,7 +53,7 @@ Configuration RemoteVMv2 {
 					$false
 				}
 			}
-			SetScript = {
+			SetScript  = {
 				$ProgressPreference = "SilentlyContinue"
 				$azCopyZipUrl = (Invoke-WebRequest -UseBasicParsing -Uri $using:azCopyDownloadUrl -MaximumRedirection 0 -ErrorAction SilentlyContinue).headers.location
 				$azCopyZipFile = Split-Path $azCopyZipUrl -Leaf
@@ -64,16 +68,162 @@ Configuration RemoteVMv2 {
 				$azCopy = (Get-ChildItem -Path $azCopyDir -Recurse -File -Filter "azcopy.exe").FullName
 				Copy-Item $azCopy $using:azCopyPath
 			}
-			GetScript = {
+			GetScript  = {
 				@{ Result = (Test-Path $using:azCopyPath) }
 			}
-			DependsOn = "[File]DevSecOps"
+			DependsOn  = "[File]cyberops"
 		}
 
-		Script SetAzCopyAutoLoginVariable
+		Script SetAzCopyVariables
 		{
 			TestScript = {
-				if (($env:AZCOPY_AUTO_LOGIN_TYPE) -eq "MSI")
+				if ((($env:AZCOPY_AUTO_LOGIN_TYPE) -eq "MSI") -and (($env:AZCOPY_DISABLE_SYSLOG) -eq "true"))
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript  = {
+				[Environment]::SetEnvironmentVariable("AZCOPY_AUTO_LOGIN_TYPE", "MSI", "Machine")
+				[Environment]::SetEnvironmentVariable("AZCOPY_DISABLE_SYSLOG", "true", "Machine")
+			}
+			GetScript  = {
+				@{ Result = ($env:AZCOPY_AUTO_LOGIN_TYPE, $env:AZCOPY_DISABLE_SYSLOG) }
+			}
+			DependsOn  = "[Script]DownloadAzCopy"
+		}
+
+		Script SetcyberopsPermissions
+		{
+			TestScript = {
+				$desiredACLAssignments = @(
+					'NT AUTHORITY\Authenticated Users'
+					'NT AUTHORITY\SYSTEM'
+				)
+				$desiredACLPermissions = @(
+					'ReadAndExecute, Synchronize'
+					'FullControl'
+				)
+
+				$fileTree = @((Get-ChildItem -Path $using:dsoRoot -Recurse | Select-Object FullName).FullName) + @($using:dsoRoot)
+				foreach ($file in $fileTree)
+				{
+					[Array]$ACLAssignments = @(($ACLAssignments) + (((Get-Acl -Path $file).Access.IdentityReference | Sort-Object Value).Value))
+					[Array]$ACLPermissions = @(($ACLPermissions) + (((Get-Acl -Path $file).Access | Sort-Object FileSystemRights).FileSystemRights))
+				}
+				$currentACLAssignments = $ACLAssignments | Select-Object -Unique
+				$currentACLPermissions = $ACLPermissions | Select-Object -Unique
+				
+				$assignmentMatch = @(Compare-Object -ReferenceObject @($desiredACLAssignments | Select-Object) `
+						-DifferenceObject @($currentACLAssignments | Select-Object)).Length -eq 0 | Out-String -Stream
+				$permissionMatch = @(Compare-Object -ReferenceObject @($desiredACLPermissions | Select-Object) `
+						-DifferenceObject @($currentACLPermissions | Select-Object)).Length -eq 0 | Out-String -Stream
+
+				if (($assignmentMatch -eq 'True') -and ($permissionMatch -eq 'True'))
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript  = {
+				$userSYSTEM = "NT AUTHORITY\SYSTEM"
+				$groupAuthenticatedUsers = "NT AUTHORITY\Authenticated Users"
+
+				#Set SYSTEM Full access and ownership
+				$acl = Get-Acl -Path $using:dsoRoot
+				$accessRuleSYSTEM = New-Object System.Security.AccessControl.FileSystemAccessRule ($userSYSTEM, "FullControl,TakeOwnership,ChangePermissions", "ContainerInherit,ObjectInherit", "None", "Allow")
+				$acl.SetAccessRule($accessRuleSYSTEM)
+				$acl | Set-Acl -Path $using:dsoRoot
+				icacls.exe $using:dsoRoot /setowner $userSYSTEM /t
+
+				#Disable inheritance
+				$acl.SetAccessRuleProtection($true, $false)
+				$acl | Set-Acl -Path $using:dsoRoot
+
+				#Remove extra explicit permissions
+				$fileTree = @((Get-ChildItem -Path $using:dsoRoot -Recurse | Select-Object FullName).FullName) + @($using:dsoRoot)
+				foreach ($file in $fileTree)
+				{
+					[System.Collections.ArrayList]$identityArray = $identityArray + @((Get-Acl -Path $file).Access.IdentityReference.Value)
+				}
+				
+				while (($identityArray -contains $groupAuthenticatedUsers) -or ($identityArray -contains $userSYSTEM))
+				{
+					$identityArray.Remove($groupAuthenticatedUsers)
+					$identityArray.Remove($userSYSTEM)
+				}
+				
+				foreach ($file in $fileTree)
+				{
+					[array]$identitySearch = (Get-Acl -Path $file).Access.IdentityReference.Value
+					if (($identitySearch | ForEach-Object{ $identityArray.Contains($_) }) -contains $true)
+					{
+						foreach ($identity in $identityArray)
+						{
+							$userSID = New-Object System.Security.Principal.NTAccount ($identity)
+							$acl.PurgeAccessRules($userSID)
+							$acl | Set-Acl -Path $file
+						}
+					}
+				}
+
+				#Set Authenticated Users read and execute access
+				$accessRuleAuthenticatedUsers = New-Object System.Security.AccessControl.FileSystemAccessRule ($groupAuthenticatedUsers, "ReadAndExecute", "ContainerInherit,ObjectInherit", "None", "Allow")
+				$acl.SetAccessRule($accessRuleAuthenticatedUsers)
+				$acl | Set-Acl -Path $using:dsoRoot
+
+				#Set SYSTEM ownership on root
+				icacls.exe $using:dsoRoot /setowner $userSYSTEM
+			}
+			GetScript  = {
+				@{ Result = (Get-Acl -Path $using:dsoRoot) }
+			}
+			DependsOn  = "[File]cyberops"
+		}
+
+		Script SetFolderOptions
+		{
+			TestScript = {
+				New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
+				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object {$_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*"}).PSChildName)
+				foreach ($profileSID in $profileSIDs)
+				{
+					$profilePath = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$profileSID").ProfileImagePath
+					if (Get-ChildItem "HKU:\$profileSID" -ErrorAction SilentlyContinue)
+					{
+						$profileLoaded = $true
+						$userKeyPath = "HKU:\$profileSID"
+					}
+					elseif (Test-Path "$profilePath\NTUSER.DAT" -ErrorAction SilentlyContinue)
+					{
+						$profileLoaded = $false
+						$userKeyPath = "HKLM:\TempHive_$profileSID"
+						& reg.exe load "HKLM\TempHive_$profileSID" "$profilePath\NTUSER.DAT"
+					}
+					else
+					{
+						Write-Host "Profile path does not exist, skipping user"
+						Continue
+					}
+					[System.Collections.ArrayList]$hiddenFilesValues = @(($hiddenFilesValues) + ((Get-ItemProperty -Path $userKeyPath\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -ErrorAction SilentlyContinue).Hidden))
+					[System.Collections.ArrayList]$fileExtensionsValues = @(($fileExtensionsValues) + ((Get-ItemProperty -Path $userKeyPath\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -ErrorAction SilentlyContinue).HideFileExt))
+								
+					if (!$profileLoaded)
+					{
+						& reg.exe unload "HKLM\TempHive_$profileSID"
+					}
+				}
+				Remove-PSDrive -Name HKU
+								
+				$hiddenFilesValue = $hiddenFilesValues | Get-Unique
+				$fileExtensionsValue = $fileExtensionsValues | Get-Unique
+				if(!($hiddenFilesValue -eq "0", "2") -and !($fileExtensionsValue -eq "1"))
 				{
 					$true
 				}
@@ -83,12 +233,40 @@ Configuration RemoteVMv2 {
 				}
 			}
 			SetScript = {
-				[Environment]::SetEnvironmentVariable("AZCOPY_AUTO_LOGIN_TYPE", "MSI", "Machine")
+				New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
+				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object {$_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*"}).PSChildName)
+				foreach ($profileSID in $profileSIDs)
+				{
+					$profilePath = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$profileSID").ProfileImagePath
+					if (Get-ChildItem "HKU:\$profileSID" -ErrorAction SilentlyContinue)
+					{
+						$profileLoaded = $true
+						$userKeyPath = "HKU:\$profileSID"
+					}
+					elseif (Test-Path "$profilePath\NTUSER.DAT" -ErrorAction SilentlyContinue)
+					{
+						$profileLoaded = $false
+						$userKeyPath = "HKLM:\TempHive_$profileSID"
+						& reg.exe load "HKLM\TempHive_$profileSID" "$profilePath\NTUSER.DAT"
+					}
+					else
+					{
+						Write-Host "Profile path does not exist, skipping user."
+						Continue
+					}
+					Set-ItemProperty -Path $userKeyPath\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name "Hidden" -Value 1 -Force -ErrorAction SilentlyContinue
+					Set-ItemProperty -Path $userKeyPath\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name "HideFileExt" -Value 0 -Force -ErrorAction SilentlyContinue
+				
+					if (!$profileLoaded)
+					{
+						& reg.exe unload "HKLM\TempHive_$profileSID"
+					}
+				}
+				Remove-PSDrive -Name HKU
 			}
 			GetScript = {
-				@{ Result = ($env:AZCOPY_AUTO_LOGIN_TYPE) }
+				@{ Result = (Write-Host "Registry check") }
 			}
-			DependsOn = "[Script]DownloadAzCopy"
 		}
 
 		Script DownloadAutoUpdate
@@ -103,19 +281,19 @@ Configuration RemoteVMv2 {
 					$false
 				}
 			}
-			SetScript = {
-				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/AutoUpdate.ps1" `
-					"$using:dssoRoot\AutoUpdate.ps1" --overwrite=true --output-level="essential") | Out-String
+			SetScript  = {
+				$result = (& $using:azCopyPath copy "$using:dsoUpdateRoot/AutoUpdate.ps1" `
+						"$using:dsoRoot\AutoUpdate.ps1" --overwrite=true --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
 					throw (("Copy error. $result"))
 				}
 				powershell.exe -ExecutionPolicy Bypass -File "$using:dsoRoot\AutoUpdate.ps1"
 			}
-			GetScript = {
+			GetScript  = {
 				@{ Result = (Get-ScheduledTask -TaskName "egobrane Updates" -ErrorAction SilentlyContinue) }
 			}
-			DependsOn = "[Script]SetAzCopyAutoLoginVariable"
+			DependsOn  = "[Script]SetAzCopyVariables"
 		}
 
 		Script ExecutionPolicyRemoteSigned
@@ -130,11 +308,11 @@ Configuration RemoteVMv2 {
 					$false
 				}
 			}
-			SetScript = {
+			SetScript  = {
 				Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 				Set-ExecutionPolicy RemoteSigned -Scope LocalMachine -Force
 			}
-			GetScript = {
+			GetScript  = {
 				@{ Result = (Get-ExecutionPolicy) }
 			}
 		}
@@ -142,7 +320,40 @@ Configuration RemoteVMv2 {
 		Script CryptoWebServerStrict
 		{
 			TestScript = {
-				if ((Get-TlsCipherSuite | Format-Table -HideTableHeaders).Count -eq 10)
+				$schannelRegistryPath = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\'
+
+				$intendedCipherArray = @(
+					'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384',
+					'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256',
+					'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384',
+					'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256',
+					'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384',
+					'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
+				)
+				$intendedTLSArray = @(
+					'0',
+					'0',
+					'0',
+					'0',
+					'0',
+					'0',
+					'0',
+					'0',
+					'0',
+					'0',
+					'0',
+					'0',
+					'4294967295',
+					'4294967295'
+				)
+				$currentCipherArray = (Get-TlsCipherSuite | Sort-Object -Property BasecipherSuite -Descending).Name
+				$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled
+
+				$cipherMatch = @(Compare-Object -ReferenceObject @($intendedCipherArray) `
+						-DifferenceObject @($currentCipherArray)).Length -eq 0 | Out-String -Stream
+				$tlsMatch = @(Compare-Object -ReferenceObject @($intendedTLSArray) `
+						-DifferenceObject @($currentTLSArray)).Length -eq 0 | Out-String -Stream
+				if ($cipherMatch -eq 'True' -and $tlsMatch -eq 'True')
 				{
 					$true
 				}
@@ -151,7 +362,7 @@ Configuration RemoteVMv2 {
 					$false
 				}
 			}
-			SetScript = {
+			SetScript  = {
 				$schannelRegistryPath = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\'
 				$mpuhPath = Join-Path $schannelRegistryPath "\Protocols\Multi-Protocol Unified Hello"
 				$pct10Path = Join-Path $schannelRegistryPath "\Protocols\PCT 1.0"
@@ -161,6 +372,7 @@ Configuration RemoteVMv2 {
 				$tls11Path = Join-Path $schannelRegistryPath "\Protocols\TLS 1.1"
 				$tls12Path = Join-Path $schannelRegistryPath "\Protocols\TLS 1.2"
 
+				#Disable Insecure Protocols
 				$insecureProtocolPathArray = @(
 					$mpuhPath,
 					$pct10Path,
@@ -170,8 +382,8 @@ Configuration RemoteVMv2 {
 					$tls11Path
 				)
 
-				#Disable Insecure Protocols
-				foreach ($insecureProtocol in $insecureProtocolPathArray) {
+				foreach ($insecureProtocol in $insecureProtocolPathArray)
+				{
 					New-Item "$insecureProtocol\Server" -Force | Out-Null
 					New-ItemProperty -Path "$insecureProtocol\Server" -Name Enabled -Value 0 -PropertyType 'Dword' -Force | Out-Null
 					New-ItemProperty -Path "$insecureProtocol\Server" -Name "DisabledByDefault" -Value 1 -PropertyType 'Dword' -Force | Out-Null
@@ -185,7 +397,8 @@ Configuration RemoteVMv2 {
 				)
 
 				#Enable Secure Protocols
-				foreach ($secureProtocol in $secureProtocolArray) {
+				foreach ($secureProtocol in $secureProtocolArray)
+				{
 					New-Item "$secureProtocol\Server" -Force | Out-Null
 					New-ItemProperty -Path "$secureProtocol\Server" -Name Enabled -Value '0xffffffff' -PropertyType 'Dword' -Force | Out-Null
 					New-ItemProperty -Path "$secureProtocol\Server" -Name "DisabledByDefault" -Value 0 -PropertyType 'Dword' -Force | Out-Null
@@ -208,7 +421,8 @@ Configuration RemoteVMv2 {
 					'Triple DES 168'
 				)
 
-				foreach ($insecureCipher in $insecureCiphers) {
+				foreach ($insecureCipher in $insecureCiphers)
+				{
 					$key = (Get-Item HKLM:\).OpenSubKey('SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers', $true).CreateSubKey($insecureCipher)
 					$key.SetValue('Enabled', 0, 'Dword')
 					$key.Close()
@@ -220,11 +434,13 @@ Configuration RemoteVMv2 {
 					'AES 256/256'
 				)
 
-				foreach ($secureCipher in $secureCiphers) {
+				foreach ($secureCipher in $secureCiphers)
+				{
 					$key = (Get-Item HKLM:\).OpenSubKey('SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers', $true).CreateSubKey($secureCipher)
 					New-ItemProperty -Path "$schannelRegistryPath\Ciphers\$secureCipher" -Name Enabled -Value '0xffffffff' -PropertyType 'Dword' -Force | Out-Null
 					$key.Close()
 				}
+
 
 				# Set Hashes Configuration
 				New-Item "$schannelRegistryPath\Hashes" -Force | Out-Null
@@ -237,7 +453,8 @@ Configuration RemoteVMv2 {
 					'SHA512'
 				)
 
-				foreach ($secureHash in $secureHashes) {
+				foreach ($secureHash in $secureHashes)
+				{
 					$key = (Get-Item HKLM:\).OpenSubKey('SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes', $true).CreateSubKey($secureHash)
 					New-ItemProperty -Path "$schannelRegistryPath\Hashes\$secureHash" -Name Enabled -Value '0xffffffff' -PropertyType 'Dword' -Force | Out-Null
 					$key.Close()
@@ -252,7 +469,8 @@ Configuration RemoteVMv2 {
 					'PKCS'
 				)
 
-				foreach ($secureKeyExchangeAlgorithm in $secureKeyExchangeAlgorithms) {
+				foreach ($secureKeyExchangeAlgorithm in $secureKeyExchangeAlgorithms)
+				{
 					$key = (Get-Item HKLM:\).OpenSubKey('SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\KeyExchangeAlgorithms', $true).CreateSubKey($secureKeyExchangeAlgorithm)
 					New-ItemProperty -Path "$schannelRegistryPath\KeyExchangeAlgorithms\$secureKeyExchangeAlgorithm" -Name Enabled -Value '0xffffffff' -PropertyType 'Dword' -Force | Out-Null
 					$key.Close()
@@ -275,28 +493,29 @@ Configuration RemoteVMv2 {
 				New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319' -Name "SchUseStrongCrypto" -Value 1 -PropertyType 'Dword' -Force | Out-Null
 				New-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319' -name "SchUseStrongCrypto" -Value 1 -PropertyType 'Dword' -Force | Out-Null
 			}
-			GetScript = {
-				@{ Result = (Get-TlsCipherSuite | Format-Table -HideTableHeaders | Out-String -Stream) }
+			GetScript  = {
+				@{ Result = (Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled) }
 			}
 		}
+		
 
 		#Begin AppLocker Configuration Block
 		Service AppIDSvc
 		{
-			Name = "AppIDSvc"
-			State = "Running"
+			Name           = "AppIDSvc"
+			State          = "Running"
 			BuiltInAccount = "LocalService"
-			DependsOn = "[Script]PolicyUpdate"
+			DependsOn      = "[Script]PolicyUpdate"
 		}
 
 		Registry AutoStartupAppID
 		{
-			Ensure = "Present"
-			Key = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AppIDSvc"
+			Ensure    = "Present"
+			Key       = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AppIDSvc"
 			ValueName = "Start"
 			ValueType = "Dword"
 			ValueData = "2"
-			Force = $true
+			Force     = $true
 		}
 
 		Script PolicyUpdate
@@ -304,13 +523,13 @@ Configuration RemoteVMv2 {
 			TestScript = {
 				$false
 			}
-			SetScript = {
+			SetScript  = {
 				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-Pol.xml" `
-					"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
 					$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
-						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+							"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
 					if($LASTEXITCODE -ne 0)
 					{
 						throw (("Copy error. $result"))
@@ -318,15 +537,52 @@ Configuration RemoteVMv2 {
 				}
 				Set-AppLockerPolicy -XmlPolicy "$using:policyPath"
 			}
-			GetScript = {
+			GetScript  = {
 				@{
-					GetScript = $GetScript
-					SetScript = $SetScript
+					GetScript  = $GetScript
+					SetScript  = $SetScript
 					TestScript = $TestScript
-					Result = (Get-Content "$using:policyPath")
+					Result     = (Get-Content "$using:policyPath")
 				}
 			}
-			DependsOn = "[Script]SetAzCopyAutoLoginVariable"
+			DependsOn  = "[Script]SetAzCopyVariables"
+		}
+
+		Script GPOSettings
+		{
+			TestScript = {
+				if ((Get-WmiObject Win32_ComputerSystem).Domain -eq "egobraneNET.com")
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript  = {
+				$lgpoPath = Join-Path $using:dsoLocalStorageRoot "\Tools\LGPO.exe"
+				$gpoPath = Join-Path $using:dsoLocalStorageRoot "\Group Policy\$using:gpoType.PolicyRules"
+
+				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/Tools/LGPO.exe" `
+						$lgpoPath --overwrite=ifSourceNewer --output-level="essential") | Out-String
+				if($LASTEXITCODE -ne 0)
+				{
+					throw (("Copy error. $result"))
+				}
+
+				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/Group Policy/$using:gpoType.PolicyRules" `
+						$gpoPath --overwrite=ifSourceNewer --output-level="essential") | Out-String
+				if($LASTEXITCODE -ne 0)
+				{
+					throw (("Copy error. $result"))
+				}
+
+				(& $lgpoPath /q /p $gpoPath)
+			}
+			GetScript  = {
+				@{ Result = (Get-Item "$using:dsoLocalStorageRoot\Group Policy\*.PolicyRules" -ErrorAction SilentlyContinue) }
+			}
 		}
 	}
 }
