@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\bin\Debug\net7.0\p20-Explore data type casting and conversion.exe
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\bin\Debug\net7.0\p20-Explore data type casting and conversion.deps.json
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\bin\Debug\net7.0\p20-Explore data type casting and conversion.runtimeconfig.json
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\bin\Debug\net7.0\p20-Explore data type casting and conversion.dll
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\bin\Debug\net7.0\p20-Explore data type casting and conversion.pdb
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\obj\Debug\net7.0\p20-Explore data type casting and conversion.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\obj\Debug\net7.0\p20-Explore data type casting and conversion.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\obj\Debug\net7.0\p20-Explore data type casting and conversion.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\obj\Debug\net7.0\p20-Explore data type casting and conversion.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\obj\Debug\net7.0\p20-Explore data type casting and conversion.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\obj\Debug\net7.0\p20-Explore data type casting and conversion.dll
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\obj\Debug\net7.0\refint\p20-Explore data type casting and conversion.dll
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\obj\Debug\net7.0\p20-Explore data type casting and conversion.pdb
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\obj\Debug\net7.0\p20-Explore data type casting and conversion.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\p20-Explore data type casting and conversion\obj\Debug\net7.0\ref\p20-Explore data type casting and conversion.dll

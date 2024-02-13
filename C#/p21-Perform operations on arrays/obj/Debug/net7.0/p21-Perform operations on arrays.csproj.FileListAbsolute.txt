@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\bin\Debug\net7.0\p21-Perform operations on arrays.exe
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\bin\Debug\net7.0\p21-Perform operations on arrays.deps.json
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\bin\Debug\net7.0\p21-Perform operations on arrays.runtimeconfig.json
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\bin\Debug\net7.0\p21-Perform operations on arrays.dll
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\bin\Debug\net7.0\p21-Perform operations on arrays.pdb
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\obj\Debug\net7.0\p21-Perform operations on arrays.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\obj\Debug\net7.0\p21-Perform operations on arrays.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\obj\Debug\net7.0\p21-Perform operations on arrays.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\obj\Debug\net7.0\p21-Perform operations on arrays.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\obj\Debug\net7.0\p21-Perform operations on arrays.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\obj\Debug\net7.0\p21-Perform operations on arrays.dll
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\obj\Debug\net7.0\refint\p21-Perform operations on arrays.dll
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\obj\Debug\net7.0\p21-Perform operations on arrays.pdb
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\obj\Debug\net7.0\p21-Perform operations on arrays.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\p21-Perform operations on arrays\obj\Debug\net7.0\ref\p21-Perform operations on arrays.dll

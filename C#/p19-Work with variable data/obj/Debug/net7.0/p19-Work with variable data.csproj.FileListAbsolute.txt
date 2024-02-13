@@ -1,0 +1,15 @@
+C:\Dev\ryan-dev\C#\p19-Work with variable data\bin\Debug\net7.0\p19-Work with variable data.exe
+C:\Dev\ryan-dev\C#\p19-Work with variable data\bin\Debug\net7.0\p19-Work with variable data.deps.json
+C:\Dev\ryan-dev\C#\p19-Work with variable data\bin\Debug\net7.0\p19-Work with variable data.runtimeconfig.json
+C:\Dev\ryan-dev\C#\p19-Work with variable data\bin\Debug\net7.0\p19-Work with variable data.dll
+C:\Dev\ryan-dev\C#\p19-Work with variable data\bin\Debug\net7.0\p19-Work with variable data.pdb
+C:\Dev\ryan-dev\C#\p19-Work with variable data\obj\Debug\net7.0\p19-Work with variable data.csproj.AssemblyReference.cache
+C:\Dev\ryan-dev\C#\p19-Work with variable data\obj\Debug\net7.0\p19-Work with variable data.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\ryan-dev\C#\p19-Work with variable data\obj\Debug\net7.0\p19-Work with variable data.AssemblyInfoInputs.cache
+C:\Dev\ryan-dev\C#\p19-Work with variable data\obj\Debug\net7.0\p19-Work with variable data.AssemblyInfo.cs
+C:\Dev\ryan-dev\C#\p19-Work with variable data\obj\Debug\net7.0\p19-Work with variable data.csproj.CoreCompileInputs.cache
+C:\Dev\ryan-dev\C#\p19-Work with variable data\obj\Debug\net7.0\p19-Work with variable data.dll
+C:\Dev\ryan-dev\C#\p19-Work with variable data\obj\Debug\net7.0\refint\p19-Work with variable data.dll
+C:\Dev\ryan-dev\C#\p19-Work with variable data\obj\Debug\net7.0\p19-Work with variable data.pdb
+C:\Dev\ryan-dev\C#\p19-Work with variable data\obj\Debug\net7.0\p19-Work with variable data.genruntimeconfig.cache
+C:\Dev\ryan-dev\C#\p19-Work with variable data\obj\Debug\net7.0\ref\p19-Work with variable data.dll
