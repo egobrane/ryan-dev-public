@@ -1,5 +1,5 @@
 #This script updates the PIM settings for a given Entra Role or Group
-
+# why is this so complicated?
 param
 (
 	[string]$roleName = "",
