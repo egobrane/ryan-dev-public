@@ -1,67 +1,58 @@
-Configuration ManagementVM {
+Configuration sql_server {
 
 	param (
 		[Parameter(Mandatory = $true)]
 		[string]$hostName
 	)
-
-	Import-DscResource -ModuleName PSDesiredStateConfiguration
+    
+	#Import Modules for all necessary DSC resources - must be in Azure Automation
+	Import-DscResource -ModuleName PSDesiredStateConfiguration 
 	Import-DscResource -ModuleName DSCR_PowerPlan
 
-	$registryPathControl = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control"
-
-	$azureStorageRoot = "https://egobranemisc.blob.core.uscloudapi.net/cyberops/"
+	$azureStorageRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecops/"
 	$dsoStorageRoot = $azureStorageRoot + "scripts/DSC/Resources"
 	$dsoAppLockerRoot = $azureStorageRoot + "scripts/DSC/AppLocker"
 	$dsoUpdateRoot = $azureStorageRoot + "scripts/Update"
 	$azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows"
 
-	$dsoRoot = 'C:\egobrane\$cyberops'
-	$gpoType = "egobranecom-management"
+	$dsoRoot = 'C:\egobrane\$DevSecOps'
+	$gpoType = "egobranecomdomain"
 	$dsoLocalStorageRoot = Join-Path $dsoRoot "Resources"
 	$azCopyPath = Join-Path $dsoRoot "azcopy.exe"
 	$policyPath = Join-Path $dsoRoot "Applocker-Global-pol.xml"
 
-	$productKey = Get-AutomationVariable -Name "Windows11KeyVL"
-	$domainJoinUser = Get-AutomationVariable -Name "domainJoinSvc"
-	$domainJoinPass = Get-AutomationVariable -Name "domainJoinSecret"
+	$IKey = Get-AutomationVariable -Name "DuoIKey"
+	$SKey = Get-AutomationVariable -Name "DuoSKey"
 	$egobranelaPass = Get-AutomationPSCredential -Name "$hostName-egobranela"
-	$iKey = Get-AutomationVariable -Name "DuoIKey"
-	$sKey = Get-AutomationVariable -Name "DuoSKey"
+	$ProductKey = Get-AutomationVariable -Name "Server2022Key"
 
-
+	#Specify node assignment
 	Node $hostName {
 
-		Registry fDenyTSConnections
-		{
-			Ensure    = "Present"
-			Key       = "$registryPathControl\Terminal Server"
-			ValueName = "fDenyTSConnections"
-			ValueType = "Dword"
-			ValueData = "0"
-			Force     = $true
-		}
 
+		#Registry Resources
 		Registry FIPSAlgorithmPolicy
 		{
 			Ensure    = "Present"
-			Key       = "$registryPathControl\Lsa\FIPSAlgorithmPolicy"
+			Key       = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa\FIPSAlgorithmPolicy"
 			ValueName = "Enabled"
 			ValueType = "Dword"
 			ValueData = "1"
 			Force     = $true
 		}
 
-		Registry fSingleSessionPerUser
+		Registry TerminalServer
 		{
 			Ensure    = "Present"
-			Key       = "$registryPathControl\Terminal Server"
+			Key       = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server"
 			ValueName = "fSingleSessionPerUser"
 			ValueType = "Dword"
 			ValueData = "0"
 			Force     = $true
 		}
 
+
+		#PowerPlan Resources
 		cPowerPlan Balanced
 		{
 			Ensure = "Present"
@@ -78,28 +69,8 @@ Configuration ManagementVM {
 			AcDc        = "AC"
 		}
 
-		File egobrane
-		{
-			Ensure          = "Present"
-			Type            = "Directory"
-			DestinationPath = "C:\egobrane"
-		}
 
-		File Temp
-		{
-			Ensure          = "Present"
-			Type            = "Directory"
-			DestinationPath = "C:\Temp"
-		}
-
-		File cyberops
-		{
-			Ensure          = "Present"
-			Type            = "Directory"
-			DestinationPath = $dsoRoot
-			Attributes      = "Hidden"
-		}
-
+		#User Resources
 		User egobranela
 		{
 			Ensure                 = "Present"
@@ -111,6 +82,18 @@ Configuration ManagementVM {
 			PasswordNeverExpires   = $true
 		}
 
+
+		#File and Directory Resources
+		File DevSecOps
+		{
+			Ensure          = "Present"
+			Type            = "Directory"
+			DestinationPath = $dsoRoot
+			Attributes      = "Hidden"
+		}
+
+
+		#Powershell Script Resources
 		Script DownloadAzCopy
 		{
 			TestScript = {
@@ -141,7 +124,7 @@ Configuration ManagementVM {
 			GetScript  = {
 				@{ Result = (Test-Path $using:azCopyPath) }
 			}
-			DependsOn  = "[File]cyberops"
+			DependsOn  = "[File]DevSecOps"
 		}
 
 		Script SetAzCopyVariables
@@ -166,8 +149,7 @@ Configuration ManagementVM {
 			DependsOn  = "[Script]DownloadAzCopy"
 		}
 
-
-		Script SetcyberopsPermissions
+		Script SetDevSecOpsPermissions
 		{
 			TestScript = {
 				$desiredACLAssignments = @(
@@ -255,7 +237,7 @@ Configuration ManagementVM {
 			GetScript  = {
 				@{ Result = (Get-Acl -Path $using:dsoRoot) }
 			}
-			DependsOn  = "[File]cyberops"
+			DependsOn  = "[File]DevSecOps"
 		}
 
 		Script SetFolderOptions
@@ -291,7 +273,7 @@ Configuration ManagementVM {
 					}
 				}
 				Remove-PSDrive -Name HKU
-								
+				[System.Collections.ArrayList]$fileExtensionsValues = @(($fileExtensionsValues) + ((Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\HideFileExt -ErrorAction SilentlyContinue).DefaultValue))
 				$hiddenFilesValue = $hiddenFilesValues | Get-Unique
 				$fileExtensionsValue = $fileExtensionsValues | Get-Unique
 				if(!($hiddenFilesValue -eq "0", "2") -and !($fileExtensionsValue -eq "1"))
@@ -304,6 +286,7 @@ Configuration ManagementVM {
 				}
 			}
 			SetScript = {
+				Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\HideFileExt -Name "DefaultValue" -Value 0 -Force -ErrorAction SilentlyContinue
 				New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
 				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object {$_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*"}).PSChildName)
 				foreach ($profileSID in $profileSIDs)
@@ -343,15 +326,10 @@ Configuration ManagementVM {
 		Script WindowsProductKey
 		{
 			TestScript = {
-				$operatingSystem = (Get-ComputerInfo).OsName
-				$productKeyExpression = $using:ProductKey
-				$partialProductKey = $productKeyExpression.SubString($productKeyExpression.length - 5, 5)
+				$ProductKeyExpression = $using:ProductKey
+				$PartialProductKey = $ProductKeyExpression.SubString($ProductKeyExpression.length - 5, 5)
 				if ((Get-CimInstance -ClassName SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -ne $null } |
-						Select-Object -Property PartialProductKey | Out-String -Stream) -like "*$partialProductKey*")
-				{
-					$true
-				}
-				elseif ($operatingSystem -like "*Windows 10*")
+						Select-Object -Property PartialProductKey | Out-String -Stream) -like "*$PartialProductKey*")
 				{
 					$true
 				}
@@ -361,29 +339,30 @@ Configuration ManagementVM {
 				}
 			}
 			SetScript  = {
-				$slmgr = 'C:\Windows\System32\slmgr.vbs'
-				$cScript = 'C:\Windows\System32\cscript.exe'
-				Start-Process -FilePath $cScript -ArgumentList ($slmgr, '-ipk', $using:productKey) | Out-Null
-				STart-Process -FilePath $cScript -ArgumentList ($slmgr, '-ato')
+				$Slmgr = 'C:\Windows\System32\slmgr.vbs'
+				$Cscript = 'C:\Windows\System32\cscript.exe'
+				Start-Process -FilePath $Cscript -ArgumentList ($Slmgr, '-ipk', $using:ProductKey) | Out-Null
+				Start-Process -FilePath $Cscript -ArgumentList ($Slmgr, '-ato')
 			}
-			GetSCript  = {
-				@{ Result = ((Get-WmiObject -Query 'select * from SoftwareLicensingService').OA3xOriginalProductKey) }
+			GetScript  = {
+				@{ Result = ((Get-WmiObject -query 'select * from SoftwareLicensingService').OA3xOriginalProductKey) }
 			}
 		}
 
 		Script DuoInstall
 		{
 			TestScript = {
-				$duoInstall = "Duo Authentication for Windows Logon x64"
-				$installed = (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
-					Where-Object { $_.DisplayName -eq $duoInstall }) -ne $null
-				if (($installed) -or (((Get-WmiObject Win32_ComputerSystem).Domain | Out-String -Stream) -like '*egobranenet*' ))
+				$DuoInstall = "Duo Authentication for Windows Logon x64"
+				$Installed = (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |
+					Where-Object { $_.DisplayName -eq $DuoInstall }) -ne $null
+				Remove-Item "$using:dsoRoot\duo-installer.exe" -Force -Confirm -ErrorAction SilentlyContinue
+				if (-Not $Installed)
 				{
-					$true
+					$false
 				}
 				else
 				{
-					$false
+					$true
 				}
 			}
 			SetScript  = {
@@ -394,14 +373,19 @@ Configuration ManagementVM {
 				{
 					throw (("Copy error. $result"))
 				}
-				(& $duoPath /S /V`" /qn IKEY=`"$using:IKey`" SKEY=`"$using:SKey`" HOST="api-7fe218fe.duosecurity.com" AUTOPUSH="#1" FAILOPEN="#0" RDPONLY="#0" UAC_PROTECTMODE="#2"`")
+				(& $duoPath /S /V`" /qn IKEY=`"$using:IKey`" SKEY=`"$using:SKey`" HOST="api-7fe218fe.duosecurity.com" AUTOPUSH="#1" FAILOPEN="#0" RDPONLY="#0" UAC_PROTECTMODE="#2"`") 
 			}
 			GetScript  = {
-				@{ Result = (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -eq $duoInstall }) }
+				@{
+					GetScript  = $GetScript
+					SetScript  = $SetScript
+					TestScript = $TestScript
+					Result     = ('True' -in (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -eq $DuoInstall }))
+				}
 			}
 			DependsOn  = @(
+				"[Script]OfflineDomainJoin"
 				"[Script]SetAzCopyVariables"
-				"[Script]DomainJoin"
 			)
 		}
 
@@ -432,135 +416,37 @@ Configuration ManagementVM {
 			DependsOn  = "[Script]SetAzCopyVariables"
 		}
 
-		Script EnableRSAT
+		Script OfflineDomainJoin
 		{
 			TestScript = {
-				$intendedCapabilities = @(
-					'Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0'
-					'Rsat.DHCP.Tools~~~~0.0.1.0'
-					'Rsat.Dns.Tools~~~~0.0.1.0'
-					'Rsat.FailoverCluster.Management.Tools~~~~0.0.1.0'
-					'Rsat.FileServices.Tools~~~~0.0.1.0'
-					'Rsat.GroupPolicy.Management.Tools~~~~0.0.1.0'
-					'Rsat.ServerManager.Tools~~~~0.0.1.0'
-					'Rsat.WSUS.Tools~~~~0.0.1.0'
-				)
-				$currentCapabilities = (Get-WindowsCapability -Name Rsat* -Online |
-					Where-Object { $_.State -eq "Installed" }).Name
-				$capabilityMatch = @(Compare-Object -ReferenceObject @($intendedCapabilities | Select-Object) `
-						-DifferenceObject @($currentCapabilities | Select-Object)).Length -eq 0
-				$capabilityMatch
+				Remove-Item "$using:dsoLocalResources\ODJ.txt" -Force -Confirm -ErrorAction SilentlyContinue
+				if (((Get-WmiObject Win32_ComputerSystem).Domain | Out-String -Stream) -like '*egobrane*')
+				{
+					$true
+				}
+				else 
+				{
+					$false
+				}
 			}
 			SetScript  = {
-				$capabilityArray = @(
-					'Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0'
-					'Rsat.DHCP.Tools~~~~0.0.1.0'
-					'Rsat.Dns.Tools~~~~0.0.1.0'
-					'Rsat.FailoverCluster.Management.Tools~~~~0.0.1.0'
-					'Rsat.FileServices.Tools~~~~0.0.1.0'
-					'Rsat.GroupPolicy.Management.Tools~~~~0.0.1.0'
-					'Rsat.ServerManager.Tools~~~~0.0.1.0'
-					'Rsat.WSUS.Tools~~~~0.0.1.0'
-				)
-				foreach ($capability in $capabilityArray)
+				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/ODJ/$using:hostName.txt" `
+						"$using:dsoLocalResources\ODJ.txt" --output-level="essential") | Out-String
+				if($LASTEXITCODE -ne 0)
 				{
-					Add-WindowsCapability -Online -Name $capability
+					throw (("Copy error. $result"))
 				}
+				djoin.exe /requestodj /psite "DmzHQ" /loadfile "$using:dsoLocalResources\ODJ.txt" /windowspath %systemroot% /localos
 			}
 			GetScript  = {
-				@{ Result = (Get-WindowsCapability -Name Rsat* -Online | Where-Object { $_.State -eq "Installed" }).Name }
-			}
-		}
-
-		Script EnableHyperVFeatures
-		{
-			TestScript = {
-				$intendedHyperVFeatures = @(
-					'Microsoft-Hyper-V-All'
-					'Microsoft-Hyper-V-Tools-All'
-					'Microsoft-Hyper-V-Management-PowerShell'
-					'Microsoft-Hyper-V-Management-Clients'
-				)
-				$currentHyperVFeatures = (Get-WindowsOptionalFeature -Online |
-					Where-Object { ($_.FeatureName -like "Microsoft-Hyper-V*") -and ($_.State -eq "Enabled") }).FeatureName
-				$featureMatch = @(Compare-Object -ReferenceObject @($intendedHyperVFeatures | Select-Object) `
-						-DifferenceObject @($currentHyperVFeatures | Select-Object)).Length -eq 0
-				$featureMatch
-			}
-			SetScript  = {
-				$intendedHyperVFeatures = @(
-					'Microsoft-Hyper-V-All'
-					'Microsoft-Hyper-V-Tools-All'
-					'Microsoft-Hyper-V-Management-PowerShell'
-					'Microsoft-Hyper-V-Management-Clients'
-				)
-				foreach ($hyperVFeature in $intendedHyperVFeatures)
-				{
-					Enable-WindowsOptionalFeature -Online -FeatureName $hyperVFeature
+				@{
+					GetScript  = $GetScript
+					SetScript  = $SetScript
+					TestScript = $TestScript
+					Result     = ('True' -in (((Get-WmiObject Win32_ComputerSystem).Domain | Out-String -Stream) -like '*egobraneCOM*'))
 				}
 			}
-			GetScript  = {
-				@{ Result = (Get-WindowsOptionalFeature -Online | Where-Object { ($_.FeatureName -like "Microsoft-Hyper-V*") `
-								-and ($_.State -eq "Enabled") }).FeatureName 
-    }
-			}
-		}
-
-		Script EnableIISFeatures
-		{
-			TestScript = {
-				$intendedIISFeatures = @(
-					'IIS-WebServerRole'
-					'IIS-WebServerManagementTools'
-					'IIS-ManagementConsole'
-				)
-				$currentIISFeatures = (Get-WindowsOptionalFeature -Online |
-					Where-Object { ($_.FeatureName -like "IIS*") -and ($_.State -eq "Enabled") }).FeatureName
-				$featureMatch = @(Compare-Object -ReferenceObject @($intendedIISFeatures | Select-Object) `
-						-DifferenceObject @($currentIISFeatures | Select-Object)).Length -eq 0
-				$featureMatch
-			}
-			SetScript  = {
-				Get-WindowsOptionalFeature -Online |
-				Where-Object { ($_.FeatureName -like "IIS*") -and ($_.State -eq "Enabled") } |
-				Disable-WindowsOptionalFeature -Online -NoRestart
-				
-				$intendedIISFeatures = @(
-					'IIS-WebServerRole'
-					'IIS-WebServerManagementTools'
-					'IIS-ManagementConsole'
-				)
-				foreach ($IISFeature in $intendedIISFeatures)
-				{
-					Enable-WindowsOptionalFeature -Online -FeatureName $IISFeature -NoRestart
-				}
-
-				$unintendedIISFeatures = @(
-					'IIS-WebServer'
-					'IIS-CommonHttpFeatures'
-					'IIS-HttpErrors'
-					'IIS-ApplicationDevelopment'
-					'IIS-Security'
-					'IIS-RequestFiltering'
-					'IIS-HealthAndDiagnostics'
-					'IIS-HttpLogging'
-					'IIS-Performance'
-					'IIS-StaticContent'
-					'IIS-DefaultDocument'
-					'IIS-DirectoryBrowsing'
-					'IIS-HttpCompressionStatic'
-				)
-				foreach ($IISFeature in $unintendedIISFeatures)
-				{
-					Disable-WindowsOptionalFeature -Online -FeatureName $IISFeature -NoRestart -ErrorAction SilentlyContinue
-				}
-				Restart-Computer -Force
-			}
-			GetScript  = {
-				@{ Result = (Get-WindowsOptionalFeature -Online | Where-Object { ($_.FeatureName -like "IIS*") `
-								-and ($_.State -eq "Enabled") }).FeatureName 
-    }
-			}
+			DependsOn  = "[Script]SetAzCopyVariables"
 		}
 
 		Script EnableRDP
@@ -568,12 +454,12 @@ Configuration ManagementVM {
 			TestScript = {
 				if ((Get-NetFirewallRule -DisplayGroup "Remote Desktop").Enabled -ne "True")
 				{
-					$false
+					$false 
 				}
 				else
 				{
-					$true
-				}
+					$true 
+				}                    
 			}
 			SetScript  = {
 				Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
@@ -583,30 +469,40 @@ Configuration ManagementVM {
 			}
 		}
 
-		Script DisableNetworkDiscovery
+		Script EnableRDPRegistry
 		{
 			TestScript = {
-				if ((Get-NetFirewallRule -DisplayGroup "Network Discovery").Enabled -ne "False")
-				{
-					$false
-				}
-				else
+				$tsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server'
+				$winStationsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
+
+				$fDenyTSConnectionsRegistry = (Get-ItemProperty -Path $tsRegistryKey -Name 'fDenyTSConnections').fDenyTSConnections
+				$userAuthenticationRegistry = (Get-ItemProperty -Path $winStationsRegistryKey -Name 'UserAuthentication').UserAuthentication
+
+				if (($fDenyTSConnectionsRegistry -eq 0) -and ($userAuthenticationRegistry -eq 1))
 				{
 					$true
 				}
+				else
+				{
+					$false
+				}
 			}
 			SetScript  = {
-				Disable-NetFirewallRule -DisplayGroup "Network Discovery"
+				$tsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server'
+				$winStationsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
+
+				Set-ItemProperty -Path $tsRegistryKey -Name 'fDenyTSConnections' -Value 0
+				Set-ItemProperty -Path $winStationsRegistryKey -Name 'UserAuthentication' -Value 1
 			}
 			GetScript  = {
-				@{ Result = (Get-NetFirewallRule -DisplayGroup "Network Discovery").Enabled }
+				@{ Result = (Get-ItemProperty -Path ($tsRegistryKey, $winStationsRegistryKey)) }
 			}
 		}
 
-		Script ExecutionPolicyRemoteSigned
+		Script SetTimeZone
 		{
-			TestScript = {
-				if ((Get-ExecutionPolicy) -eq "RemoteSigned")
+			Testscript = {
+				if ((Get-TimeZone | Out-String -Stream) -like "*Eastern Standard Time*")
 				{
 					$true
 				}
@@ -616,99 +512,54 @@ Configuration ManagementVM {
 				}
 			}
 			SetScript  = {
-				Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-				Set-ExecutionPolicy RemoteSigned -Scope LocalMachine -Force
-			}
-			GetScript  = {
-				@{ Result = (Get-ExecutionPolicy) }
-			}
-		}
-
-		Script LocalAdministratorGroupManagement
-		{
-			TestScript = {
-				if (((Get-LocalGroupMember -Group "Administrators").Name | Out-String -Stream) -like '*egobraneCOM\$IG4000-2K1GJGFMV829*' `
-						-and ((Get-LocalGroupMember -Group "Administrators").Name | Out-String -Stream) -like '*egobranela*')
-				{
-					$true
-				}
-				else
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				Add-LocalGroupMember -Group "Administrators" -Member 'egobraneCOM\$IG4000-2K1GJGFMV829', 'egobranela' -ErrorAction SilentlyContinue
-			}
-			GetScript  = {
-				@{ Result = (Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) }
-			}
-			DependsOn  = @(
-				"[Script]DomainJoin"
-				"[User]egobranela"
-			)
-		}
-
-		Script DisableLocalAdministrator
-		{
-			TestScript = {
-				if ((Get-LocalUser -Name "Administrator").Enabled -eq "True")
-				{
-					$false
-				}
-				else
-				{
-					$true
-				}
-			}
-			SetScript  = {
-				Disable-LocalUser -Name "Administrator"
-			}
-			GetScript  = {
-				@{ Result = (Get-LocalUser -Name "Administrator").Enabled }
-			}
-		}
-		Script TimeZone
-		{
-			TestScript = {
-				if ((Get-TimeZone).Id -eq "Eastern Standard Time")
-				{
-					$true
-				}
-				else
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				Set-TimeZone -Name "Eastern Standard Time"
+				Set-TimeZone -Name 'Eastern Standard Time'
 			}
 			GetScript  = {
 				@{ Result = (Get-TimeZone) }
 			}
 		}
 
-		Script DomainJoin
+		Script LocalAdminDMZRole
 		{
 			TestScript = {
-				if (((Get-WmiObject Win32_ComputerSystem).Domain | Out-String -Stream) -like '*egobrane*' )
+				if ((Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) -like '*egobraneCOM\$8G4000-3S2D3LMFN9RL*' -and (Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) -like '*egobranela*')
 				{
-					$true
+					$true 
 				}
 				else
 				{
-					$false
+					$false 
 				}
 			}
 			SetScript  = {
-				(Get-WmiObject -NameSpace "Root\Cimv2" -Class "Win32_ComputerSystem").JoinDomainOrWorkgroup("aad.egobrane.com", "$using:domainJoinPass", "$using:domainJoinUser", $null, 3)
-				Restart-Computer -Force
+				Add-LocalGroupMember -Group "Administrators" -Member 'egobraneCOM\$8G4000-3S2D3LMFN9RL', 'egobranela'
 			}
 			GetScript  = {
-				@{ Result = (Get-WmiObject Win32_ComputerSystem).Domain }
+				@{ Result = (Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) }
 			}
+			DependsOn  = "[Script]OfflineDomainJoin"
 		}
 
+		Script DisableLocalAdminUser
+		{
+			TestScript = {
+				if ((Get-LocalUser -Name "Administrator" | Out-String -Stream) -like "*True*")
+				{
+					$false 
+				}
+				else
+				{
+					$true 
+				}
+			}
+			SetScript  = {
+				Disable-LocalUser -Name "Administrator"
+			}
+			GetScript  = {
+				@{ Result = (Get-LocalUser -Name "Administrator") }
+			}
+		}
+            
 		Script CryptoWebServerStrict
 		{
 			TestScript = {
@@ -739,8 +590,9 @@ Configuration ManagementVM {
 					'4294967295'
 				)
 				$currentCipherArray = (Get-TlsCipherSuite | Sort-Object -Property BasecipherSuite -Descending).Name
+				$ErrorActionPreference = "SilentlyContinue"
 				$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled
-
+				$ErrorActionPreference = "Continue"
 				$cipherMatch = @(Compare-Object -ReferenceObject @($intendedCipherArray) `
 						-DifferenceObject @($currentCipherArray)).Length -eq 0 | Out-String -Stream
 				$tlsMatch = @(Compare-Object -ReferenceObject @($intendedTLSArray) `
@@ -889,6 +741,7 @@ Configuration ManagementVM {
 				@{ Result = (Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled) }
 			}
 		}
+		
 
 		#Begin AppLocker Configuration Block
 		Service AppIDsvc
@@ -922,12 +775,7 @@ Configuration ManagementVM {
 						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
-					$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
-							"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
-					if($LASTEXITCODE -ne 0)
-					{
-						throw (("Copy error. $result"))
-					}
+					throw (("Copy error. $result"))
 				}
 				Set-AppLockerPolicy -XmlPolicy "$using:policyPath"
 			}
@@ -941,7 +789,7 @@ Configuration ManagementVM {
 			}
 			DependsOn  = "[Script]SetAzCopyVariables"
 		}
-
+		
 		Script GPOSettings
 		{
 			TestScript = {

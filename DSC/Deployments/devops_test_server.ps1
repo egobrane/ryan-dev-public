@@ -1,30 +1,37 @@
-Configuration NightlyTestServer {
+Configuration devops_test_server {
 
 	param (
 		[Parameter(Mandatory = $true)]
-		[string]$hostName
+		[string]$hostName,
+
+		[Parameter(Mandatory = $true)]
+		[string]$yearRange = "2024-2025"
 	)
 
 
 	Import-DscResource -ModuleName PSDesiredStateConfiguration
 	Import-DscResource -ModuleName DSCR_PowerPlan
+	Import-DscResource -ModuleName WebAdministrationDsc
+	Import-DscResource -ModuleName CertificateDsc
 
 	$registryPathWSUS = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
 	$registryPathAU = Join-Path $registryPathWSUS "\AU"
 
-	$azureStorageRoot = "https://egobranemisc.blob.core.uscloudapi.net/cyberops/"
+	$azureStorageRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecops/"
 	$dsoStorageRoot = $azureStorageRoot + "scripts/DSC/Resources"
 	$dsoAppLockerRoot = $azureStorageRoot + "scripts/DSC/AppLocker"
 	$dsoUpdateRoot = $azureStorageRoot + "scripts/Update"
 	$azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows"
 
-	$dsoRoot = 'C:\egobrane\$cyberops'
+	$dsoRoot = 'C:\egobrane\$DevSecOps'
 	$gpoType = "egobranecom-nightlytest"
 	$geocodePath = "C:\ProgramData\egobrane\egobraneWeb_Default"
 	$dsoLocalStorageRoot = Join-Path $dsoRoot "Resources"
 	$azCopyPath = Join-Path $dsoRoot "azcopy.exe"
 	$policyPath = Join-Path $dsoRoot "Applocker-Global-pol.xml"
 
+	$sslThumbprint = Get-AutomationVariable -Name "$yearRange-egobranenet-thumbprint"
+	$egobraneNetCert = Get-AutomationPSCredential -Name "$yearRange-egobranenet-cert"
 	$productKey2016 = Get-AutomationVariable -Name "Server2016Key"
 	$productKey2022 = Get-AutomationVariable -Name "Server2022Key"
 	$domainJoinUser = Get-AutomationVariable -Name "domainJoinSvc"
@@ -148,7 +155,7 @@ Configuration NightlyTestServer {
 			DestinationPath = "C:\Temp"
 		}
 
-		File cyberops
+		File DevSecOps
 		{
 			Ensure          = "Present"
 			Type            = "Directory"
@@ -202,7 +209,7 @@ Configuration NightlyTestServer {
 			DependsOn = "[Script]DownloadNet35"
 		}
 
-		WindowsFeatureSet DMZWebServer
+		WindowsFeatureSet WebServer
 		{
 			Name      = @(
 				"Web-Server"
@@ -238,6 +245,44 @@ Configuration NightlyTestServer {
 			DependsOn = "[Script]DownloadNet35"
 		}
 
+		WebSite SSLBindings
+		{
+			Ensure      = "Present"
+			Name        = "Default Web Site"
+			DependsOn   = @(
+				"[PfxImport]egobraneNet"
+				"[WindowsFeatureSet]WebServer"
+			)
+			BindingInfo = @(
+				DSC_WebBindingInformation
+				{
+					Protocol              = "HTTPS"
+					Port                  = "443"
+					CertificateStoreName  = "MY"
+					CertificateThumbprint = $sslThumbprint
+					IPAddress             = "*"
+				}
+				DSC_WebBindingInformation
+				{
+					Protocol  = "HTTP"
+					Port      = "80"
+					IPAddress = "*"
+				}
+			)
+		}
+
+		PfxImport egobraneNet
+		{
+			Thumbprint   = $sslThumbprint
+			Path         = "$dsoLocalStorageRoot\STAR_egobranenet_com_$yearRange.pfx"
+			Location     = "LocalMachine"
+			Store        = "My"
+			Credential   = $egobraneNetCert
+			Ensure       = "Present"
+			FriendlyName = "*.egobranenet.com $yearRange"
+			DependsOn    = "[Script]CertDownload"
+		}
+
 		Script DownloadAzCopy
 		{
 			TestScript = {
@@ -268,7 +313,7 @@ Configuration NightlyTestServer {
 			GetScript  = {
 				@{ Result = (Test-Path $using:azCopyPath) }
 			}
-			DependsOn  = "[File]cyberops"
+			DependsOn  = "[File]DevSecOps"
 		}
 
 		Script SetAzCopyVariables
@@ -293,7 +338,7 @@ Configuration NightlyTestServer {
 			DependsOn  = "[Script]DownloadAzCopy"
 		}
 
-		Script SetcyberopsPermissions
+		Script SetDevSecOpsPermissions
 		{
 			TestScript = {
 				$desiredACLAssignments = @(
@@ -381,14 +426,14 @@ Configuration NightlyTestServer {
 			GetScript  = {
 				@{ Result = (Get-Acl -Path $using:dsoRoot) }
 			}
-			DependsOn  = "[File]cyberops"
+			DependsOn  = "[File]DevSecOps"
 		}
 
 		Script SetFolderOptions
 		{
 			TestScript = {
 				New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
-				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object {$_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*"}).PSChildName)
+				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object { $_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*" }).PSChildName)
 				foreach ($profileSID in $profileSIDs)
 				{
 					$profilePath = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$profileSID").ProfileImagePath
@@ -417,7 +462,7 @@ Configuration NightlyTestServer {
 					}
 				}
 				Remove-PSDrive -Name HKU
-								
+				[System.Collections.ArrayList]$fileExtensionsValues = @(($fileExtensionsValues) + ((Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\HideFileExt -ErrorAction SilentlyContinue).DefaultValue))
 				$hiddenFilesValue = $hiddenFilesValues | Get-Unique
 				$fileExtensionsValue = $fileExtensionsValues | Get-Unique
 				if(!($hiddenFilesValue -eq "0", "2") -and !($fileExtensionsValue -eq "1"))
@@ -429,9 +474,10 @@ Configuration NightlyTestServer {
 					$false
 				}
 			}
-			SetScript = {
+			SetScript  = {
+				Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\HideFileExt -Name "DefaultValue" -Value 0 -Force -ErrorAction SilentlyContinue
 				New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
-				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object {$_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*"}).PSChildName)
+				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object { $_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*" }).PSChildName)
 				foreach ($profileSID in $profileSIDs)
 				{
 					$profilePath = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$profileSID").ProfileImagePath
@@ -461,7 +507,7 @@ Configuration NightlyTestServer {
 				}
 				Remove-PSDrive -Name HKU
 			}
-			GetScript = {
+			GetScript  = {
 				@{ Result = (Write-Host "Registry check") }
 			}
 		}
@@ -722,6 +768,46 @@ Configuration NightlyTestServer {
 			)
 		}
 
+		Script CertDownload
+		{
+			TestScript = {
+				Remove-Item "$using:dsoLocalStorageRoot\STAR_egobranenet_com_$using:YearRange.pfx" -Force -Confirm -ErrorAction SilentlyContinue
+				if (Get-ChildItem -Path cert:\LocalMachine\My | Where-Object { $_.FriendlyName -like "*$using:YearRange*" })
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript  = {
+				$operatingSystem = (Get-ComputerInfo).OsName
+				if ($operatingSystem -like "*2016*")
+				{
+					$targetCert = "$using:dsoStorageRoot/Certs/STAR_egobranenet_com_$using:yearRange.legacy.pfx"
+				}
+				elseif ($operatingSystem -like "*2022*")
+				{
+					$targetCert = "$using:dsoStorageRoot/Certs/STAR_egobranenet_com_$using:yearRange.pfx"
+				}
+				$result = (& $using:azCopyPath copy $targetCert	"$using:dsoLocalStorageRoot\STAR_egobranenet_com_$using:yearRange.pfx" --output-level="essential") | Out-String
+				if($LASTEXITCODE -ne 0)
+				{
+					throw (("Copy error. $result"))
+				}
+			}
+			GetScript  = {
+				@{
+					GetScript  = $GetScript
+					SetScript  = $SetScript
+					TestScript = $TestScript
+					Result     = ('True' -in (Get-ChildItem -Path cert:\LocalMachine\My | Where-Object { $_.FriendlyName -like "*$using:yearRange*" }))
+				}
+			}
+			DependsOn  = "[Script]SetAzCopyVariables"
+		}
+
 		Script DomainJoin
 		{
 			Testscript = {
@@ -941,7 +1027,29 @@ Configuration NightlyTestServer {
 			GetScript  = {
 				@{ Result = (Get-WebConfiguration "system.webServer/httpProtocol/customHeaders/add[@name='X-Powered-By']" | Out-String -Stream ) }
 			}
-			DependsOn  = "[WindowsFeatureSet]DMZWebServer"
+			DependsOn  = "[WindowsFeatureSet]WebServer"
+		}
+
+		Script SetTransportHeader
+		{
+			TestScript = {
+				if ((Get-WebConfigurationProperty -Filter "system.webServer/httpProtocol/customHeaders/add" -PSPath "IIS:\Sites\Default Web Site" -Name value |
+						Out-String -Stream) -like "*Strict-Transport-Security*")
+				{
+					$true 
+				}
+				else
+				{
+					$false 
+				}
+			}
+			SetScript  = {
+				Add-WebConfigurationProperty -Filter "system.webServer/httpProtocol/customHeaders" -PSPath "IIS:\Sites\Default Web Site" -Name . -Value @{name = "Strict-Transport-Security"; value = "max-age=31536000; includeSubDomains" }
+			}
+			GetScript  = {
+				@{ Result = (Get-WebConfigurationProperty -Filter "system.webServer/httpProtocol/customHeaders/add" -PSPath "IIS:\Sites\Default Web Site" -Name value | Out-String -Stream ) }
+			}
+			DependsOn  = "[WindowsFeatureSet]WebServer"
 		}
 
 		Script CryptoWebServerStrict
@@ -974,8 +1082,9 @@ Configuration NightlyTestServer {
 					'4294967295'
 				)
 				$currentCipherArray = (Get-TlsCipherSuite | Sort-Object -Property BasecipherSuite -Descending).Name
+				$ErrorActionPreference = "SilentlyContinue"
 				$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled
-
+				$ErrorActionPreference = "Continue"
 				$cipherMatch = @(Compare-Object -ReferenceObject @($intendedCipherArray) `
 						-DifferenceObject @($currentCipherArray)).Length -eq 0 | Out-String -Stream
 				$tlsMatch = @(Compare-Object -ReferenceObject @($intendedTLSArray) `

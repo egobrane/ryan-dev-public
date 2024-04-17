@@ -1,46 +1,46 @@
-Configuration DmzWebServer {
+Configuration jump_point_vm {
 
 	param (
 		[Parameter(Mandatory = $true)]
-		[string]$hostName,
+		[string]$hostName = "localhost",
 
+		[Alias("Crypto Exception Profile")]
+		[ValidateSet("None", "TLS", "Ciphers", "Both")]
 		[Parameter(Mandatory = $true)]
-		#Enter the year range for the certificate. Eg, 2022-2023
-		[string]$YearRange = "2022-2023"
+		[string]$cryptoExceptionProfile = "None"
 	)
-    
-	#Import Modules for all necessary DSC resources - must be in Azure Automation
-	Import-DscResource -ModuleName WebAdministrationDsc
-	Import-DscResource -ModuleName PSDesiredStateConfiguration 
-	Import-DscResource -ModuleName DSCR_PowerPlan
-	Import-DscResource -ModuleName CertificateDsc
 
+	Import-DscResource -ModuleName PSDesiredStateConfiguration
 
-	$azureStorageRoot = "https://egobranemisc.blob.core.uscloudapi.net/cyberops/"
+	$azureStorageRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecops/"
 	$dsoStorageRoot = $azureStorageRoot + "scripts/DSC/Resources"
 	$dsoAppLockerRoot = $azureStorageRoot + "scripts/DSC/AppLocker"
 	$dsoUpdateRoot = $azureStorageRoot + "scripts/Update"
 	$azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows"
 
-	$dsoRoot = 'C:\egobrane\$cyberops'
-	$gpoType = "egobranecomdomain"
+	$dsoRoot = 'C:\egobrane\$DevSecOps'
+	$gpoType = "egobranecom-remote"
 	$dsoLocalStorageRoot = Join-Path $dsoRoot "Resources"
 	$azCopyPath = Join-Path $dsoRoot "azcopy.exe"
 	$policyPath = Join-Path $dsoRoot "Applocker-Global-pol.xml"
 
-	$SSLThumbprint = Get-AutomationVariable -Name "$YearRange-egobranecom-thumbprint"
-	$IKey = Get-AutomationVariable -Name "DuoIKey"
-	$SKey = Get-AutomationVariable -Name "DuoSKey"
-	$symlinkCred = Get-AutomationPSCredential -Name "dmz-share-svc"
-	$egobraneComCert = Get-AutomationPSCredential -Name "$YearRange-egobranecom-cert"
-	$egobranelaPass = Get-AutomationPSCredential -Name "$hostName-egobranela"
-	$ProductKey = Get-AutomationVariable -Name "Server2022Key"
-
-	#Specify node assignment
 	Node $hostName {
 
+		File DevSecOps
+		{
+			Ensure          = "Present"
+			Type            = "Directory"
+			DestinationPath = $dsoRoot
+			Attributes      = "Hidden"
+		}
 
-		#Registry Resources
+		File egobrane
+		{
+			Ensure          = "Present"
+			Type            = "Directory"
+			DestinationPath = "C:\egobrane"
+		}
+
 		Registry FIPSAlgorithmPolicy
 		{
 			Ensure    = "Present"
@@ -51,211 +51,6 @@ Configuration DmzWebServer {
 			Force     = $true
 		}
 
-		Registry TerminalServer
-		{
-			Ensure    = "Present"
-			Key       = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server"
-			ValueName = "fSingleSessionPerUser"
-			ValueType = "Dword"
-			ValueData = "0"
-			Force     = $true
-		}
-
-
-		#PowerPlan Resources
-		cPowerPlan Balanced
-		{
-			Ensure = "Present"
-			GUID   = "SCHEME_BALANCED"
-			Name   = "Balanced"
-			Active = $true
-		}
-
-		cPowerPlanSetting MonitorTimeout
-		{
-			PlanGuid    = "SCHEME_BALANCED"
-			SettingGuid = "VIDEOIDLE"
-			Value       = 0
-			AcDc        = "AC"
-		}
-
-
-		#User Resources
-		User egobranela
-		{
-			Ensure                 = "Present"
-			Disabled               = $false
-			UserName               = "egobranela"
-			FullName               = "egobranela"
-			Password               = $egobranelaPass
-			PasswordChangeRequired = $false
-			PasswordNeverExpires   = $true
-		}
-
-
-		#File and Directory Resources
-		File MapData
-		{
-			Ensure          = "Present"
-			Type            = "Directory"
-			DestinationPath = "C:\ProgramData\egobrane\egobraneWeb_Default\MapData"
-		}
-
-		File cyberops
-		{
-			Ensure          = "Present"
-			Type            = "Directory"
-			DestinationPath = $dsoRoot
-			Attributes      = "Hidden"
-		}
-
-
-		#Server Roles and Features Resources
-		WindowsFeatureSet DMZNETFramework
-		{
-			Name   = @(
-				"NET-Framework-Features"
-				"NET-Framework-Core"
-				"NET-Framework-45-Features"
-				"NET-Framework-45-Core"
-				"NET-Framework-45-ASPNET"
-				"NET-WCF-Services45"
-				"NET-WCF-TCP-PortSharing45"
-			)
-			Ensure = "Present"
-		}
-
-		WindowsFeatureSet DMZWebServer
-		{
-			Name   = @(
-				"Web-Server"
-				"Web-WebServer"
-				"Web-Common-Http"
-				"Web-Default-Doc"
-				"Web-Dir-Browsing"
-				"Web-Http-Errors"
-				"Web-Static-Content"
-				"Web-Http-Redirect"
-				"Web-Health"
-				"Web-Http-Logging"
-				"Web-Request-Monitor"
-				"Web-Performance"
-				"Web-Stat-Compression"
-				"Web-Security"
-				"Web-Filtering"
-				"Web-Windows-Auth"
-				"Web-App-Dev"
-				"Web-Net-Ext45"
-				"Web-Asp-Net45"
-				"Web-Net-Ext"
-				"Web-AppInit"
-				"Web-ASP"
-				"Web-Asp-Net"
-				"Web-ISAPI-Ext"
-				"Web-ISAPI-Filter"
-				"Web-WebSockets"
-				"Web-Mgmt-Tools"
-				"Web-Mgmt-Console"
-			)   
-			Ensure = "Present"
-		}
-
-		WindowsFeatureSet DMZStorageServices
-		{
-			Name   = @(
-				"FileAndStorage-Services"
-				"Storage-Services"
-			)
-			Ensure = "Present"
-		}
-
-
-		#IIS Logging Resources
-		IisLogging FullLogs
-		{
-			LogPath         = "%SystemDrive%\inetpub\logs\LogFiles"
-			Logflags        = @(
-				"Date"
-				"Time"
-				"ClientIP"
-				"UserName"
-				"SiteName"
-				"ComputerName"
-				"ServerIP"
-				"ServerPort"
-				"Method"
-				"UriStem"
-				"UriQuery"
-				"HttpStatus"
-				"HttpSubStatus"
-				"Win32Status"
-				"BytesSent"
-				"BytesRecv"
-				"TimeTaken"
-				"ProtocolVersion"
-				"Host"
-				"UserAgent"
-				"Cookie"
-				"Referer"
-			)
-			LogFormat       = "W3C" 
-			LogPeriod       = "Daily"
-			LogTargetW3C    = "File"
-			LogCustomFields = DSC_LogCustomField
-			{
-				LogFieldName = "X-Forwarded-For"
-				SourceName   = "X-Forwarded-For"
-				SourceType   = "RequestHeader"
-				Ensure       = "Present"
-			}
-			DependsOn       = "[WindowsFeatureSet]DMZWebServer"
-		}
-
-
-		#IIS SSL Bindings Resource
-		WebSite SSLBindings
-		{
-			Ensure      = "Present"
-			Name        = "Default Web Site"
-			DependsOn   = @(
-				"[PfxImport]Staregobrane"
-				"[WindowsFeatureSet]DMZWebServer"
-			)
-			BindingInfo = @(
-				DSC_WebBindingInformation
-				{
-					Protocol              = "HTTPS"
-					Port                  = "443"
-					CertificateStoreName  = "MY"
-					CertificateThumbprint = $SSLThumbprint
-					IPAddress             = "*"
-				}
-				DSC_WebBindingInformation
-				{
-					Protocol  = "HTTP"
-					Port      = "80"
-					IpAddress = "*"
-				}
-			)
-		}
-
-
-		#SSL Certificate Resources
-		PfxImport Staregobrane
-		{
-			Thumbprint   = $SSLThumbprint
-			Path         = "$dsoLocalResources\STAR_egobrane_com_$YearRange.pfx"
-			Location     = "LocalMachine"
-			Store        = "My"
-			Credential   = $egobraneComCert
-			Ensure       = "Present"
-			FriendlyName = "*.egobrane.com $YearRange"
-			DependsOn    = "[Script]CertDownload"
-		}
-
-
-
-		#Powershell Script Resources
 		Script DownloadAzCopy
 		{
 			TestScript = {
@@ -286,7 +81,7 @@ Configuration DmzWebServer {
 			GetScript  = {
 				@{ Result = (Test-Path $using:azCopyPath) }
 			}
-			DependsOn  = "[File]cyberops"
+			DependsOn  = "[File]DevSecOps"
 		}
 
 		Script SetAzCopyVariables
@@ -311,7 +106,7 @@ Configuration DmzWebServer {
 			DependsOn  = "[Script]DownloadAzCopy"
 		}
 
-		Script SetcyberopsPermissions
+		Script SetDevSecOpsPermissions
 		{
 			TestScript = {
 				$desiredACLAssignments = @(
@@ -399,7 +194,7 @@ Configuration DmzWebServer {
 			GetScript  = {
 				@{ Result = (Get-Acl -Path $using:dsoRoot) }
 			}
-			DependsOn  = "[File]cyberops"
+			DependsOn  = "[File]DevSecOps"
 		}
 
 		Script SetFolderOptions
@@ -435,7 +230,7 @@ Configuration DmzWebServer {
 					}
 				}
 				Remove-PSDrive -Name HKU
-								
+				[System.Collections.ArrayList]$fileExtensionsValues = @(($fileExtensionsValues) + ((Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\HideFileExt -ErrorAction SilentlyContinue).DefaultValue))
 				$hiddenFilesValue = $hiddenFilesValues | Get-Unique
 				$fileExtensionsValue = $fileExtensionsValues | Get-Unique
 				if(!($hiddenFilesValue -eq "0", "2") -and !($fileExtensionsValue -eq "1"))
@@ -448,6 +243,7 @@ Configuration DmzWebServer {
 				}
 			}
 			SetScript = {
+				Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\HideFileExt -Name "DefaultValue" -Value 0 -Force -ErrorAction SilentlyContinue
 				New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
 				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object {$_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*"}).PSChildName)
 				foreach ($profileSID in $profileSIDs)
@@ -483,169 +279,6 @@ Configuration DmzWebServer {
 				@{ Result = (Write-Host "Registry check") }
 			}
 		}
-		
-		Script WindowsProductKey
-		{
-			TestScript = {
-				$ProductKeyExpression = $using:ProductKey
-				$PartialProductKey = $ProductKeyExpression.SubString($ProductKeyExpression.length - 5, 5)
-				if ((Get-CimInstance -ClassName SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -ne $null } |
-						Select-Object -Property PartialProductKey | Out-String -Stream) -like "*$PartialProductKey*")
-				{
-					$true
-				}
-				else 
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				$Slmgr = 'C:\Windows\System32\slmgr.vbs'
-				$Cscript = 'C:\Windows\System32\cscript.exe'
-				Start-Process -FilePath $Cscript -ArgumentList ($Slmgr, '-ipk', $using:ProductKey) | Out-Null
-				Start-Process -FilePath $Cscript -ArgumentList ($Slmgr, '-ato')
-			}
-			GetScript  = {
-				@{ Result = ((Get-WmiObject -query 'select * from SoftwareLicensingService').OA3xOriginalProductKey) }
-			}
-		}
-
-		Script DuoInstall
-		{
-			TestScript = {
-				$DuoInstall = "Duo Authentication for Windows Logon x64"
-				$Installed = (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |
-					Where-Object { $_.DisplayName -eq $DuoInstall }) -ne $null
-				Remove-Item "$using:dsoRoot\duo-installer.exe" -Force -Confirm -ErrorAction SilentlyContinue
-				if (-Not $Installed)
-				{
-					$false
-				}
-				else 
-				{
-					$true
-				}
-			}
-			SetScript  = {
-				$duoPath = Join-Path $using:dsoLocalResources "duo-installer.exe"
-				$result = (& $using:azCopyPath copy "$using:dsoUpdateRoot/packages/duo-win-login-4.2.2.exe" `
-						$duoPath --output-level="essential") | Out-String
-				if($LASTEXITCODE -ne 0)
-				{
-					throw (("Copy error. $result"))
-				}
-				(& $duoPath /S /V`" /qn IKEY=`"$using:IKey`" SKEY=`"$using:SKey`" HOST="api-7fe218fe.duosecurity.com" AUTOPUSH="#1" FAILOPEN="#0" RDPONLY="#0" UAC_PROTECTMODE="#2"`") 
-			}
-			GetScript  = {
-				@{ Result = (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
-						Where-Object { $_.DisplayName -eq "Duo Authentication for Windows Logon x64" }).DisplayName 
-    }
-			}
-			DependsOn  = @(
-				"[Script]OfflineDomainJoin"
-				"[Script]SetAzCopyVariables"
-			)
-		}
-		
-		Script OfflineDomainJoin
-		{
-			TestScript = {
-				Remove-Item "$using:dsoLocalResources\ODJ.txt" -Force -Confirm -ErrorAction SilentlyContinue
-				if (((Get-WmiObject Win32_ComputerSystem).Domain | Out-String -Stream) -like '*egobrane*')
-				{
-					$true
-				}
-				else
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/ODJ/$using:hostName.txt" `
-						"$using:dsoLocalResources\ODJ.txt" --output-level="essential") | Out-String
-				if($LASTEXITCODE -ne 0)
-				{
-					throw (("Copy error. $result"))
-				}
-				djoin.exe /requestodj /psite "DmzHQ" /loadfile "$using:dsoLocalResources\ODJ.txt" /windowspath %systemroot% /localos
-			}
-			GetScript  = {
-				@{
-					GetScript  = $GetScript
-					SetScript  = $SetScript
-					TestScript = $TestScript
-					Result     = ('True' -in (((Get-WmiObject Win32_ComputerSystem).Domain | Out-String -Stream) -like '*egobraneCOM*'))
-				}
-			}
-			DependsOn  = "[Script]SetAzCopyVariables"
-		}
-
-		Script CertDownload
-		{
-			TestScript = {
-				Remove-Item "$using:dsoLocalResources\STAR_egobrane_com_$using:YearRange.pfx" -Force -Confirm -ErrorAction SilentlyContinue
-				if (Get-ChildItem -Path cert:\LocalMachine\My | Where-Object { $_.FriendlyName -like "*$using:YearRange*" })
-				{
-					$true
-				}
-				else
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/Certs/STAR_egobrane_com_$using:YearRange.pfx" `
-						"$using:dsoLocalResources\STAR_egobrane_com_$using:YearRange.pfx" --output-level="essential") | Out-String
-				if($LASTEXITCODE -ne 0)
-				{
-					throw (("Copy error. $result"))
-				}
-			}
-			GetScript  = {
-				@{
-					GetScript  = $GetScript
-					SetScript  = $SetScript
-					TestScript = $TestScript
-					Result     = ('True' -in (Get-ChildItem -Path cert:\LocalMachine\My | Where-Object { $_.FriendlyName -like "*$using:YearRange*" }))
-				}
-			}
-			DependsOn  = "[Script]SetAzCopyVariables"
-		}
-
-		Script RedirectDownload
-		{
-			TestScript = {
-				$indexPath = "C:\inetpub\wwwroot\index.htm"
-				if ((Test-Path -Path $indexPath) -and ((Get-Content -Path $indexPath |
-							Out-String -Stream) -like "*www.egobrane*"))
-				{
-					$true
-				}
-				else
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				$indexPath = "C:\inetpub\wwwroot\index.htm"
-				Get-ChildItem $indexPath -Exclude "web.config" | Remove-Item -Force -Confirm -ErrorAction SilentlyContinue
-				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/Redirects/dmzindex.htm" `
-						$indexPath --overwrite=true --output-level="essential") | Out-String
-				if($LASTEXITCODE -ne 0)
-				{
-					throw (("Copy error. $result"))
-				}
-			}
-			GetScript  = {
-				@{
-					GetScript  = $GetScript
-					SetScript  = $SetScript
-					TestScript = $TestScript
-					Result     = ('True' -in ((Get-Content -Path "C:\inetpub\wwwroot\index.htm" | Out-String -Stream) -like "*www.egobrane"))
-				}
-			}
-			DependsOn  = "[Script]SetAzCopyVariables"
-		}
 
 		Script DownloadAutoUpdate
 		{
@@ -673,99 +306,9 @@ Configuration DmzWebServer {
 			}
 			DependsOn  = "[Script]SetAzCopyVariables"
 		}
-		
-		Script EnableRDP
-		{
-			TestScript = {
-				if ((Get-NetFirewallRule -DisplayGroup "Remote Desktop").Enabled -ne "True")
-				{
-					$false 
-				}
-				else
-				{
-					$true 
-				}                    
-			}
-			SetScript  = {
-				Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-			}
-			GetScript  = {
-				@{ Result = (Get-NetFirewallRule -DisplayGroup "Remote Desktop") }
-			}
-		}
-
-		Script EnableRDPRegistry
-		{
-			TestScript = {
-				$tsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server'
-				$winStationsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
-
-				$fDenyTSConnectionsRegistry = (Get-ItemProperty -Path $tsRegistryKey -Name 'fDenyTSConnections').fDenyTSConnections
-				$userAuthenticationRegistry = (Get-ItemProperty -Path $winStationsRegistryKey -Name 'UserAuthentication').UserAuthentication
-
-				if (($fDenyTSConnectionsRegistry -eq 0) -and ($userAuthenticationRegistry -eq 1))
-				{
-					$true
-				}
-				else
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				$tsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server'
-				$winStationsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
-
-				Set-ItemProperty -Path $tsRegistryKey -Name 'fDenyTSConnections' -Value 0
-				Set-ItemProperty -Path $winStationsRegistryKey -Name 'UserAuthentication' -Value 1
-			}
-			GetScript  = {
-				@{ Result = (Get-ItemProperty -Path ($tsRegistryKey, $winStationsRegistryKey)) }
-			}
-		}
-
-		Script DisableNetworkDiscovery
-		{
-			TestScript = {
-				if ((Get-NetFirewallRule -DisplayGroup "Network Discovery").Enabled -ne "False")
-				{
-					$false 
-				}
-				else
-				{
-					$true 
-				}                    
-			} 
-			SetScript  = {
-				Disable-NetFirewallRule -DisplayGroup "Network Discovery"
-			}
-			GetScript  = {
-				@{ Result = (Get-NetFirewallRule -DisplayGroup "Network Discovery") }
-			}
-		}
-
-		Script TimeZone
-		{
-			TestScript = {
-				if ((Get-TimeZone).Id -eq 'Eastern Standard Time')
-				{
-					$true
-				}
-				else
-				{
-					$false
-				}
-			}
-			SetScript  = {
-				Set-TimeZone -Name 'Eastern Standard Time'
-			}
-			GetScript  = {
-				@{ Result = (Get-TimeZone) }
-			}
-		}
 
 		Script ExecutionPolicyRemoteSigned
-		{ 
+		{
 			TestScript = {
 				if ((Get-ExecutionPolicy) -eq "RemoteSigned")
 				{
@@ -785,144 +328,6 @@ Configuration DmzWebServer {
 			}
 		}
 
-		Script LocalAdministratorGroupDMZ
-		{
-			TestScript = {
-				if ((Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) -like '*egobraneCOM\$8G4000-3S2D3LMFN9RL*' `
-						-and (Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) -like '*egobranela*')
-				{
-					$true 
-				}
-				else
-				{
-					$false 
-				}
-			}
-			SetScript  = {
-				Add-LocalGroupMember -Group "Administrators" -Member 'egobraneCOM\$8G4000-3S2D3LMFN9RL', 'egobranela' -ErrorAction SilentlyContinue
-			}
-			GetScript  = {
-				@{ Result = (Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) }
-			}
-			DependsOn  = @(
-				"[Script]OfflineDomainJoin"
-				"[User]egobranela"
-			)
-		}
-            
-		Script SymbolicGeocode
-		{
-			TestScript           = {
-				if (Test-Path -Path "C:\ProgramData\egobrane\egobraneWeb_Default\GeocodeData")
-				{
-					$true 
-				}
-				else
-				{
-					$false 
-				}                    
-			}            
-			SetScript            = {
-				New-Item -ItemType SymbolicLink -Path "C:\ProgramData\egobrane\egobraneWeb_Default\GeocodeData\" -Target "\\dmz-sql\GeocodeData\"
-			}
-			GetScript            = {
-				@{ Result = (Get-ChildItem "C:\ProgramData\egobrane\egobraneWeb_Default\") }
-			}
-			PsDscRunAsCredential = $symlinkCred
-			DependsOn            = @(
-				"[Script]MapData"
-				"[Script]OfflineDomainJoin"
-			)
-		}
-
-		Script MapData
-		{
-			TestScript           = {
-				if (Test-Path -Path "C:\ProgramData\egobrane\egobraneWeb_Default\MapData\Vector20220518\")
-				{
-					$true 
-				}
-				else
-				{
-					$false 
-				}
-			}
-			SetScript            = {
-				New-Item -ItemType SymbolicLink -Path "C:\ProgramData\egobrane\egobraneWeb_Default\MapData\Vector20220518\" -Target "\\dmz-sql\MapData\Vector20220518\"
-			}
-			GetScript            = {
-				@{ Result = (Get-ChildItem "C:\ProgramData\egobrane\egobraneWeb_Default\") }
-			}
-			PsDscRunAsCredential = $symlinkCred
-			DependsOn            = @(
-				"[Script]OfflineDomainJoin"
-				"[File]MapData"
-			)
-		}
-
-		Script RemoveXPoweredHeader
-		{
-			TestScript = {
-				if ((Get-WebConfiguration "/system.webServer/httpProtocol/customHeaders/add[@name='X-Powered-By']").Name -like 'X-Powered-By')
-				{
-					$false 
-				}
-				else
-				{
-					$true 
-				}                    
-			}
-			SetScript  = {
-				Clear-WebConfiguration "/system.webServer/httpProtocol/customHeaders/add[@name='X-Powered-By']"
-			}
-			GetScript  = {
-				@{ Result = (Get-WebConfiguration "system.webServer/httpProtocol/customHeaders/add[@name='X-Powered-By']" | Out-String -Stream ) }
-			}
-			DependsOn  = "[WindowsFeatureSet]DMZWebServer"
-		}
-
-		Script AddTransportHeader
-		{
-			TestScript = {
-				if ((Get-WebConfigurationProperty -Filter "system.webServer/httpProtocol/customHeaders/add" -PSPath "IIS:\Sites\Default Web Site" -Name value |
-						Out-String -Stream) -like "*Strict-Transport-Security*")
-				{
-					$true 
-				}
-				else
-				{
-					$false 
-				}
-			}
-			SetScript  = {
-				Add-WebConfigurationProperty -Filter "system.webServer/httpProtocol/customHeaders" -PSPath "IIS:\Sites\Default Web Site" -Name . -Value @{name = "Strict-Transport-Security"; value = "max-age=31536000; includeSubDomains" }
-			}
-			GetScript  = {
-				@{ Result = (Get-WebConfigurationProperty -Filter "system.webServer/httpProtocol/customHeaders/add" -PSPath "IIS:\Sites\Default Web Site" -Name value | Out-String -Stream ) }
-			}
-			DependsOn  = "[WindowsFeatureSet]DMZWebServer"
-		}
-
-		Script DisableLocalAdministrator
-		{
-			TestScript = {
-				if ((Get-LocalUser -Name "Administrator").Enabled -eq "True")
-				{
-					$false
-				}
-				else
-				{
-					$true
-				}
-			}
-			SetScript  = {
-				Disable-LocalUser -Name "Administrator"
-			}
-			GetScript  = {
-				@{ Result = (Get-LocalUser -Name "Administrator").Enabled }
-			}
-		}
-        
 		Script CryptoWebServerStrict
 		{
 			TestScript = {
@@ -953,8 +358,9 @@ Configuration DmzWebServer {
 					'4294967295'
 				)
 				$currentCipherArray = (Get-TlsCipherSuite | Sort-Object -Property BasecipherSuite -Descending).Name
+				$ErrorActionPreference = "SilentlyContinue"
 				$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled
-
+				$ErrorActionPreference = "Continue"
 				$cipherMatch = @(Compare-Object -ReferenceObject @($intendedCipherArray) `
 						-DifferenceObject @($currentCipherArray)).Length -eq 0 | Out-String -Stream
 				$tlsMatch = @(Compare-Object -ReferenceObject @($intendedTLSArray) `
@@ -1104,15 +510,14 @@ Configuration DmzWebServer {
 			}
 		}
 		
+
 		#Begin AppLocker Configuration Block
-		Service AppIDsvc
+		Service AppIDSvc
 		{
 			Name           = "AppIDSvc"
 			State          = "Running"
-			BuiltinAccount = "LocalService"
-			DependsOn      = @(
-				"[Script]PolicyUpdate"
-			)
+			BuiltInAccount = "LocalService"
+			DependsOn      = "[Script]PolicyUpdate"
 		}
 
 		Registry AutoStartupAppID
@@ -1125,14 +530,13 @@ Configuration DmzWebServer {
 			Force     = $true
 		}
 
-		#Check if remote policy has changed and downloads latest policy if so
 		Script PolicyUpdate
 		{
 			TestScript = {
 				$false
 			}
 			SetScript  = {
-				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
+				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-Pol.xml" `
 						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{

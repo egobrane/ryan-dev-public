@@ -1,32 +1,29 @@
-Configuration RemoteVM {
+Configuration vm_host {
 
 	param (
 		[Parameter(Mandatory = $true)]
-		[string]$hostName = "localhost",
-
-		[Alias("Crypto Exception Profile")]
-		[ValidateSet("None", "TLS", "Ciphers", "Both")]
-		[Parameter(Mandatory = $true)]
-		[string]$cryptoExceptionProfile = "None"
+		[string]$hostName = "localhost"
 	)
 
 	Import-DscResource -ModuleName PSDesiredStateConfiguration
 
-	$azureStorageRoot = "https://egobranemisc.blob.core.uscloudapi.net/cyberops/"
+	$azureStorageRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecops/"
 	$dsoStorageRoot = $azureStorageRoot + "scripts/DSC/Resources"
 	$dsoAppLockerRoot = $azureStorageRoot + "scripts/DSC/AppLocker"
 	$dsoUpdateRoot = $azureStorageRoot + "scripts/Update"
 	$azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows"
 
-	$dsoRoot = 'C:\egobrane\$cyberops'
-	$gpoType = "egobranecom-remote"
+	$dsoRoot = 'C:\egobrane\$DevSecOps'
+	$gpoType = "egobranecomdomain"
 	$dsoLocalStorageRoot = Join-Path $dsoRoot "Resources"
 	$azCopyPath = Join-Path $dsoRoot "azcopy.exe"
 	$policyPath = Join-Path $dsoRoot "Applocker-Global-pol.xml"
 
+
 	Node $hostName {
 
-		File cyberops
+
+		File DevSecOps
 		{
 			Ensure          = "Present"
 			Type            = "Directory"
@@ -39,6 +36,16 @@ Configuration RemoteVM {
 			Ensure          = "Present"
 			Type            = "Directory"
 			DestinationPath = "C:\egobrane"
+		}
+
+		Registry FIPSAlgorithmPolicy
+		{
+			Ensure    = "Present"
+			Key       = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa\FIPSAlgorithmPolicy"
+			ValueName = "Enabled"
+			ValueType = "Dword"
+			ValueData = "1"
+			Force     = $true
 		}
 
 		Script DownloadAzCopy
@@ -69,9 +76,9 @@ Configuration RemoteVM {
 				Copy-Item $azCopy $using:azCopyPath
 			}
 			GetScript  = {
-				@{ Result = (Test-Path $using:azCopyPath) }
+				@{ Result = (Test-Path $using:azCopyPath -ErrorAction SilentlyContinue) }
 			}
-			DependsOn  = "[File]cyberops"
+			DependsOn  = "[File]DevSecOps"
 		}
 
 		Script SetAzCopyVariables
@@ -96,7 +103,7 @@ Configuration RemoteVM {
 			DependsOn  = "[Script]DownloadAzCopy"
 		}
 
-		Script SetcyberopsPermissions
+		Script SetDevSecOpsPermissions
 		{
 			TestScript = {
 				$desiredACLAssignments = @(
@@ -184,9 +191,9 @@ Configuration RemoteVM {
 			GetScript  = {
 				@{ Result = (Get-Acl -Path $using:dsoRoot) }
 			}
-			DependsOn  = "[File]cyberops"
+			DependsOn  = "[File]DevSecOps"
 		}
-
+		
 		Script SetFolderOptions
 		{
 			TestScript = {
@@ -220,7 +227,7 @@ Configuration RemoteVM {
 					}
 				}
 				Remove-PSDrive -Name HKU
-								
+				[System.Collections.ArrayList]$fileExtensionsValues = @(($fileExtensionsValues) + ((Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\HideFileExt -ErrorAction SilentlyContinue).DefaultValue))
 				$hiddenFilesValue = $hiddenFilesValues | Get-Unique
 				$fileExtensionsValue = $fileExtensionsValues | Get-Unique
 				if(!($hiddenFilesValue -eq "0", "2") -and !($fileExtensionsValue -eq "1"))
@@ -233,6 +240,7 @@ Configuration RemoteVM {
 				}
 			}
 			SetScript = {
+				Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\HideFileExt -Name "DefaultValue" -Value 0 -Force -ErrorAction SilentlyContinue
 				New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
 				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object {$_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*"}).PSChildName)
 				foreach ($profileSID in $profileSIDs)
@@ -268,7 +276,7 @@ Configuration RemoteVM {
 				@{ Result = (Write-Host "Registry check") }
 			}
 		}
-
+		
 		Script DownloadAutoUpdate
 		{
 			TestScript = {
@@ -347,8 +355,9 @@ Configuration RemoteVM {
 					'4294967295'
 				)
 				$currentCipherArray = (Get-TlsCipherSuite | Sort-Object -Property BasecipherSuite -Descending).Name
+				$ErrorActionPreference = "SilentlyContinue"
 				$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled
-
+				$ErrorActionPreference = "Continue"
 				$cipherMatch = @(Compare-Object -ReferenceObject @($intendedCipherArray) `
 						-DifferenceObject @($currentCipherArray)).Length -eq 0 | Out-String -Stream
 				$tlsMatch = @(Compare-Object -ReferenceObject @($intendedTLSArray) `
@@ -497,15 +506,16 @@ Configuration RemoteVM {
 				@{ Result = (Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled) }
 			}
 		}
-		
 
 		#Begin AppLocker Configuration Block
-		Service AppIDSvc
+		Service AppIDsvc
 		{
 			Name           = "AppIDSvc"
 			State          = "Running"
 			BuiltInAccount = "LocalService"
-			DependsOn      = "[Script]PolicyUpdate"
+			DependsOn      = @(
+				"[Script]PolicyUpdate"
+			)
 		}
 
 		Registry AutoStartupAppID
@@ -518,13 +528,14 @@ Configuration RemoteVM {
 			Force     = $true
 		}
 
+		#Check if remote policy has changed and downloads latest policy if so
 		Script PolicyUpdate
 		{
 			TestScript = {
 				$false
 			}
 			SetScript  = {
-				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-Pol.xml" `
+				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
 						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
@@ -540,7 +551,7 @@ Configuration RemoteVM {
 			GetScript  = {
 				@{
 					GetScript  = $GetScript
-					SetScript  = $SetScript
+					SetScript  = $TestScript
 					TestScript = $TestScript
 					Result     = (Get-Content "$using:policyPath")
 				}

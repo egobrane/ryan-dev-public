@@ -1,4 +1,4 @@
-Configuration Workstation {
+Configuration workstation {
 
 	param (
 		[Alias("Crypto Exception Profile")]
@@ -7,19 +7,23 @@ Configuration Workstation {
 		[string]$cryptoExceptions = ("None", "TLS", "Ciphers", "Both"),
 
 		[Parameter(Mandatory = $true)]
-		[string]$hostName = "localhost"
+		[string]$hostName = "localhost",
+
+		[Parameter(Mandatory = $true)]
+		[ValidateSet("Audit", "Enforce")]
+		[string]$appLockerMode = "Audit"
 
 	)
 
 	Import-DscResource -ModuleName PSDesiredStateConfiguration
 
-	$azureStorageRoot = "https://egobranemisc.blob.core.uscloudapi.net/cyberops/"
+	$azureStorageRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecops/"
 	$dsoStorageRoot = $azureStorageRoot + "scripts/DSC/Resources"
 	$dsoAppLockerRoot = $azureStorageRoot + "scripts/DSC/AppLocker"
 	$dsoUpdateRoot = $azureStorageRoot + "scripts/Update"
 	$azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows"
 
-	$dsoRoot = 'C:\egobrane\$cyberops'
+	$dsoRoot = 'C:\egobrane\$DevSecOps'
 	$gpoType = "egobranecomdomain"
 	$dsoLocalStorageRoot = Join-Path $dsoRoot "Resources"
 	$azCopyPath = Join-Path $dsoRoot "azcopy.exe"
@@ -29,7 +33,7 @@ Configuration Workstation {
 	Node $hostName {
 
 
-		File cyberops
+		File DevSecOps
 		{
 			Ensure          = "Present"
 			Type            = "Directory"
@@ -42,6 +46,16 @@ Configuration Workstation {
 			Ensure          = "Present"
 			Type            = "Directory"
 			DestinationPath = "C:\egobrane"
+		}
+
+		Registry FIPSAlgorithmPolicy
+		{
+			Ensure    = "Present"
+			Key       = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa\FIPSAlgorithmPolicy"
+			ValueName = "Enabled"
+			ValueType = "Dword"
+			ValueData = "1"
+			Force     = $true
 		}
 
 		Script DownloadAzCopy
@@ -74,7 +88,7 @@ Configuration Workstation {
 			GetScript  = {
 				@{ Result = (Test-Path $using:azCopyPath -ErrorAction SilentlyContinue) }
 			}
-			DependsOn  = "[File]cyberops"
+			DependsOn  = "[File]DevSecOps"
 		}
 
 		Script SetAzCopyVariables
@@ -99,7 +113,55 @@ Configuration Workstation {
 			DependsOn  = "[Script]DownloadAzCopy"
 		}
 
-		Script SetcyberopsPermissions
+		Script SetBitLocker
+		{
+			TestScript = {
+				if ((Get-TPM).TpmPresent.ToString() -eq "False")
+				{
+					$true
+				}
+				elseif ((Get-BitLockerVolume).ProtectionStatus.ToString() -eq "On")
+				{
+					$true
+				}
+				elseif ((Get-BitLockerVolume).ProtectionStatus.ToString() -eq "Off")
+				{
+					$false
+				}
+			}
+			SetScript  = {
+				Enable-BitLocker C: -TpmProtector -ErrorAction SilentlyContinue
+			}
+			GetScript  = {
+				@{ Result = (Get-BitLockerVolume).ProtectionStatus }
+			}
+		}
+
+		Script SetChromeDeviceId
+		{
+			TestScript = {
+				if (((Get-Item -Path "HKLM:\SOFTWARE\Policies\Google\Chrome\" -ErrorAction SilentlyContinue).Property | Out-String -Stream) -like "*CloudApAuthEnabled*")
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript = {
+				if (-Not (Test-Path -Path "HKLM:\SOFTWARE\Policies\Google\Chrome\"))
+				{
+					New-Item -Path "HKLM:\SOFTWARE\Policies\Google\Chrome\" -Force
+				}
+				New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Google\Chrome\" -Name "CloudAPAuthEnabled" -PropertyType Dword -Value 1
+			}
+			GetScript = {
+				@{ Result = (Test-Path -Path "HKLM:\SOFTWARE\Policies\Google\Chrome\" -ErrorAction SilentlyContinue)}
+			}
+		}
+		
+		Script SetDevSecOpsPermissions
 		{
 			TestScript = {
 				$desiredACLAssignments = @(
@@ -187,14 +249,14 @@ Configuration Workstation {
 			GetScript  = {
 				@{ Result = (Get-Acl -Path $using:dsoRoot) }
 			}
-			DependsOn  = "[File]cyberops"
+			DependsOn  = "[File]DevSecOps"
 		}
 		
 		Script SetFolderOptions
 		{
 			TestScript = {
 				New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
-				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object {$_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*"}).PSChildName)
+				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object { $_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*" }).PSChildName)
 				foreach ($profileSID in $profileSIDs)
 				{
 					$profilePath = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$profileSID").ProfileImagePath
@@ -223,7 +285,7 @@ Configuration Workstation {
 					}
 				}
 				Remove-PSDrive -Name HKU
-								
+				[System.Collections.ArrayList]$fileExtensionsValues = @(($fileExtensionsValues) + ((Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\HideFileExt -ErrorAction SilentlyContinue).DefaultValue))
 				$hiddenFilesValue = $hiddenFilesValues | Get-Unique
 				$fileExtensionsValue = $fileExtensionsValues | Get-Unique
 				if(!($hiddenFilesValue -eq "0", "2") -and !($fileExtensionsValue -eq "1"))
@@ -235,9 +297,10 @@ Configuration Workstation {
 					$false
 				}
 			}
-			SetScript = {
+			SetScript  = {
+				Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folder\HideFileExt -Name "DefaultValue" -Value 0 -Force -ErrorAction SilentlyContinue
 				New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
-				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object {$_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*"}).PSChildName)
+				$profileSIDs = @((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" | Where-Object { $_.ProfileImagePath -like "C:\Users\*" -and $_.ProfileImagePath -notlike "C:\Users\default*" }).PSChildName)
 				foreach ($profileSID in $profileSIDs)
 				{
 					$profilePath = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$profileSID").ProfileImagePath
@@ -267,7 +330,7 @@ Configuration Workstation {
 				}
 				Remove-PSDrive -Name HKU
 			}
-			GetScript = {
+			GetScript  = {
 				@{ Result = (Write-Host "Registry check") }
 			}
 		}
@@ -360,7 +423,7 @@ Configuration Workstation {
 							'4294967295',
 							'4294967295'
 						)
-						$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled
+						$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled -ErrorAction SilentlyContinue
 						$tlsMatch = @(Compare-Object -ReferenceObject @($intendedTLSArray) `
 								-DifferenceObject @($currentTLSArray)).Length -eq 0
 						$tlsMatch
@@ -395,8 +458,9 @@ Configuration Workstation {
 							'4294967295'
 						)
 						$currentCipherArray = (Get-TlsCipherSuite | Sort-Object -Property BasecipherSuite -Descending).Name
+						$ErrorActionPreference = "SilentlyContinue"
 						$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled
-	
+						$ErrorActionPreference = "Continue"
 						$cipherMatch = @(Compare-Object -ReferenceObject @($intendedCipherArray) `
 								-DifferenceObject @($currentCipherArray)).Length -eq 0 | Out-String -Stream
 						$tlsMatch = @(Compare-Object -ReferenceObject @($intendedTLSArray) `
@@ -430,7 +494,7 @@ Configuration Workstation {
 
 
 				#Disable Insecure Protocols
-				if ($using:cryptoExceptions -eq "Cipher" -or "None")
+				if ($using:cryptoExceptions -eq "Ciphers" -or "None")
 				{
 					$insecureProtocolPathArray = @(
 						$mpuhPath,
@@ -584,19 +648,25 @@ Configuration Workstation {
 			Force     = $true
 		}
 
-		#Check if remote policy has changed and downloads latest policy if so
+		#Check if remote policy has changed,  and downloads latest policy if so
 		Script PolicyUpdate
 		{
 			TestScript = {
 				$false
 			}
 			SetScript  = {
-				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
-						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+				if ($using:appLockerMode -eq "Enforce")
+				{
+					$targetPolicy = "$using:dsoAppLockerRoot/Applocker-Global-Enforce.xml"
+				}
+				elseif ($using:appLockerMode -eq "Audit")
+				{
+					$targetPolicy = "$using:dsoAppLockerRoot/Applocker-Global-pol.xml"
+				}
+				$result = (& $using:azCopyPath copy $targetPolicy "$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
-					$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
-							"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+					$result = (& $using:azCopyPath copy $targetPolicy "$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
 					if($LASTEXITCODE -ne 0)
 					{
 						throw (("Copy error. $result"))
