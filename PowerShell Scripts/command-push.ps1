@@ -5,5 +5,5 @@ $settings = @{
 $protectedSettings = @{
 	"commandToExecute" = "powershell.exe Remove-Item -Path C:\egobraneS -Recurse -Force";
 };
-$machine = "egobranepc";
+$machine = "Remote7";
 Update-AzConnectedMachineExtension -Name "SecDevOps" -ResourceGroupName "egobrane-Internal" -MachineName $machine -Setting $settings -ProtectedSetting $protectedSettings -NoWait;

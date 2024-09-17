@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Difference of Squares/1.0.0": {
+        "runtime": {
+          "Difference of Squares.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Difference of Squares/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

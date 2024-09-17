@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/bin/Debug/net8.0/Binary Search
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/bin/Debug/net8.0/Binary Search.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/bin/Debug/net8.0/Binary Search.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/bin/Debug/net8.0/Binary Search.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/bin/Debug/net8.0/Binary Search.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/obj/Debug/net8.0/Binary Search.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/obj/Debug/net8.0/Binary Search.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/obj/Debug/net8.0/Binary Search.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/obj/Debug/net8.0/Binary Search.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/obj/Debug/net8.0/Binary Search.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/obj/Debug/net8.0/Binary Search.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/obj/Debug/net8.0/refint/Binary Search.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/obj/Debug/net8.0/Binary Search.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/obj/Debug/net8.0/Binary Search.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Binary Search/obj/Debug/net8.0/ref/Binary Search.dll

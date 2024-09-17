@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/bin/Debug/net8.0/Triangle
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/bin/Debug/net8.0/Triangle.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/bin/Debug/net8.0/Triangle.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/bin/Debug/net8.0/Triangle.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/bin/Debug/net8.0/Triangle.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/obj/Debug/net8.0/Triangle.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/obj/Debug/net8.0/Triangle.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/obj/Debug/net8.0/Triangle.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/obj/Debug/net8.0/Triangle.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/obj/Debug/net8.0/Triangle.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/obj/Debug/net8.0/Triangle.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/obj/Debug/net8.0/refint/Triangle.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/obj/Debug/net8.0/Triangle.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/obj/Debug/net8.0/Triangle.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Triangle/obj/Debug/net8.0/ref/Triangle.dll

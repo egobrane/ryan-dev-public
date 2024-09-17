@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/bin/Debug/net8.0/Robot Name
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/bin/Debug/net8.0/Robot Name.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/bin/Debug/net8.0/Robot Name.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/bin/Debug/net8.0/Robot Name.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/bin/Debug/net8.0/Robot Name.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/obj/Debug/net8.0/Robot Name.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/obj/Debug/net8.0/Robot Name.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/obj/Debug/net8.0/Robot Name.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/obj/Debug/net8.0/Robot Name.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/obj/Debug/net8.0/Robot Name.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/obj/Debug/net8.0/Robot Name.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/obj/Debug/net8.0/refint/Robot Name.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/obj/Debug/net8.0/Robot Name.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/obj/Debug/net8.0/Robot Name.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Robot Name/obj/Debug/net8.0/ref/Robot Name.dll

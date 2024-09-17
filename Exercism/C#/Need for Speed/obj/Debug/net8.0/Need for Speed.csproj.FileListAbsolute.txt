@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/bin/Debug/net8.0/Need for Speed
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/bin/Debug/net8.0/Need for Speed.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/bin/Debug/net8.0/Need for Speed.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/bin/Debug/net8.0/Need for Speed.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/bin/Debug/net8.0/Need for Speed.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/obj/Debug/net8.0/Need for Speed.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/obj/Debug/net8.0/Need for Speed.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/obj/Debug/net8.0/Need for Speed.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/obj/Debug/net8.0/Need for Speed.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/obj/Debug/net8.0/Need for Speed.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/obj/Debug/net8.0/Need for Speed.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/obj/Debug/net8.0/refint/Need for Speed.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/obj/Debug/net8.0/Need for Speed.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/obj/Debug/net8.0/Need for Speed.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Need for Speed/obj/Debug/net8.0/ref/Need for Speed.dll

@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/bin/Debug/net8.0/Roll the Die!
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/bin/Debug/net8.0/Roll the Die!.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/bin/Debug/net8.0/Roll the Die!.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/bin/Debug/net8.0/Roll the Die!.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/bin/Debug/net8.0/Roll the Die!.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/obj/Debug/net8.0/Roll the Die!.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/obj/Debug/net8.0/Roll the Die!.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/obj/Debug/net8.0/Roll the Die!.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/obj/Debug/net8.0/Roll the Die!.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/obj/Debug/net8.0/Roll the Die!.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/obj/Debug/net8.0/Roll the Die!.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/obj/Debug/net8.0/refint/Roll the Die!.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/obj/Debug/net8.0/Roll the Die!.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/obj/Debug/net8.0/Roll the Die!.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Roll the Die!/obj/Debug/net8.0/ref/Roll the Die!.dll

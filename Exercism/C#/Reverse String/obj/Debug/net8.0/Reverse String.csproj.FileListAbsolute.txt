@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/bin/Debug/net8.0/Reverse String
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/bin/Debug/net8.0/Reverse String.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/bin/Debug/net8.0/Reverse String.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/bin/Debug/net8.0/Reverse String.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/bin/Debug/net8.0/Reverse String.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/obj/Debug/net8.0/Reverse String.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/obj/Debug/net8.0/Reverse String.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/obj/Debug/net8.0/Reverse String.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/obj/Debug/net8.0/Reverse String.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/obj/Debug/net8.0/Reverse String.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/obj/Debug/net8.0/Reverse String.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/obj/Debug/net8.0/refint/Reverse String.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/obj/Debug/net8.0/Reverse String.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/obj/Debug/net8.0/Reverse String.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Reverse String/obj/Debug/net8.0/ref/Reverse String.dll

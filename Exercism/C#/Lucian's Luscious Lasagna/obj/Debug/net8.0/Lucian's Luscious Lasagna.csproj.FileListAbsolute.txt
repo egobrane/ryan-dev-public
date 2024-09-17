@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/obj/Debug/net8.0/Lucian's Luscious Lasagna.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/obj/Debug/net8.0/Lucian's Luscious Lasagna.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/obj/Debug/net8.0/Lucian's Luscious Lasagna.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/obj/Debug/net8.0/Lucian's Luscious Lasagna.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/obj/Debug/net8.0/Lucian's Luscious Lasagna.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/bin/Debug/net8.0/Lucian's Luscious Lasagna
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/bin/Debug/net8.0/Lucian's Luscious Lasagna.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/bin/Debug/net8.0/Lucian's Luscious Lasagna.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/bin/Debug/net8.0/Lucian's Luscious Lasagna.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/bin/Debug/net8.0/Lucian's Luscious Lasagna.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/obj/Debug/net8.0/Lucian's Luscious Lasagna.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/obj/Debug/net8.0/refint/Lucian's Luscious Lasagna.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/obj/Debug/net8.0/Lucian's Luscious Lasagna.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/obj/Debug/net8.0/Lucian's Luscious Lasagna.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Lucian's Luscious Lasagna/obj/Debug/net8.0/ref/Lucian's Luscious Lasagna.dll

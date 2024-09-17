@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/bin/Debug/net8.0/Isogram
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/bin/Debug/net8.0/Isogram.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/bin/Debug/net8.0/Isogram.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/bin/Debug/net8.0/Isogram.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/bin/Debug/net8.0/Isogram.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/obj/Debug/net8.0/Isogram.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/obj/Debug/net8.0/Isogram.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/obj/Debug/net8.0/Isogram.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/obj/Debug/net8.0/Isogram.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/obj/Debug/net8.0/Isogram.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/obj/Debug/net8.0/Isogram.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/obj/Debug/net8.0/refint/Isogram.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/obj/Debug/net8.0/Isogram.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/obj/Debug/net8.0/Isogram.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Isogram/obj/Debug/net8.0/ref/Isogram.dll

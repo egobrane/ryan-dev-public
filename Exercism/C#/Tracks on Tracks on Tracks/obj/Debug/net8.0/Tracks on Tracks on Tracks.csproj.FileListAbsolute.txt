@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/bin/Debug/net8.0/Tracks on Tracks on Tracks
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/bin/Debug/net8.0/Tracks on Tracks on Tracks.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/bin/Debug/net8.0/Tracks on Tracks on Tracks.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/bin/Debug/net8.0/Tracks on Tracks on Tracks.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/bin/Debug/net8.0/Tracks on Tracks on Tracks.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/obj/Debug/net8.0/Tracks on Tracks on Tracks.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/obj/Debug/net8.0/Tracks on Tracks on Tracks.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/obj/Debug/net8.0/Tracks on Tracks on Tracks.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/obj/Debug/net8.0/Tracks on Tracks on Tracks.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/obj/Debug/net8.0/Tracks on Tracks on Tracks.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/obj/Debug/net8.0/Tracks on Tracks on Tracks.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/obj/Debug/net8.0/refint/Tracks on Tracks on Tracks.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/obj/Debug/net8.0/Tracks on Tracks on Tracks.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/obj/Debug/net8.0/Tracks on Tracks on Tracks.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tracks on Tracks on Tracks/obj/Debug/net8.0/ref/Tracks on Tracks on Tracks.dll

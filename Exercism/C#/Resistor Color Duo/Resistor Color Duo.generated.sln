@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Resistor Color Duo", "Resistor Color Duo.csproj", "{02980DD3-333A-476B-9EE1-237AB4295A83}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{02980DD3-333A-476B-9EE1-237AB4295A83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02980DD3-333A-476B-9EE1-237AB4295A83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02980DD3-333A-476B-9EE1-237AB4295A83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02980DD3-333A-476B-9EE1-237AB4295A83}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3070CA2B-662A-4537-93C9-7ADFF39BFD97}
+	EndGlobalSection
+EndGlobal

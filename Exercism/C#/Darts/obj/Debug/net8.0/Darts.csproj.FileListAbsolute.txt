@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/bin/Debug/net8.0/Darts
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/bin/Debug/net8.0/Darts.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/bin/Debug/net8.0/Darts.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/bin/Debug/net8.0/Darts.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/bin/Debug/net8.0/Darts.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/obj/Debug/net8.0/Darts.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/obj/Debug/net8.0/Darts.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/obj/Debug/net8.0/Darts.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/obj/Debug/net8.0/Darts.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/obj/Debug/net8.0/Darts.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/obj/Debug/net8.0/Darts.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/obj/Debug/net8.0/refint/Darts.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/obj/Debug/net8.0/Darts.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/obj/Debug/net8.0/Darts.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Darts/obj/Debug/net8.0/ref/Darts.dll

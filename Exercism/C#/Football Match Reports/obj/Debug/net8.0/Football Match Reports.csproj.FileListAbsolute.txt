@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/obj/Debug/net8.0/Football Match Reports.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/obj/Debug/net8.0/Football Match Reports.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/obj/Debug/net8.0/Football Match Reports.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/obj/Debug/net8.0/Football Match Reports.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/obj/Debug/net8.0/Football Match Reports.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/bin/Debug/net8.0/Football Match Reports
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/bin/Debug/net8.0/Football Match Reports.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/bin/Debug/net8.0/Football Match Reports.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/bin/Debug/net8.0/Football Match Reports.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/bin/Debug/net8.0/Football Match Reports.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/obj/Debug/net8.0/Football Match Reports.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/obj/Debug/net8.0/refint/Football Match Reports.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/obj/Debug/net8.0/Football Match Reports.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/obj/Debug/net8.0/Football Match Reports.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Football Match Reports/obj/Debug/net8.0/ref/Football Match Reports.dll

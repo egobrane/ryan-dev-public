@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/bin/Debug/net8.0/Pangram
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/bin/Debug/net8.0/Pangram.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/bin/Debug/net8.0/Pangram.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/bin/Debug/net8.0/Pangram.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/bin/Debug/net8.0/Pangram.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/obj/Debug/net8.0/Pangram.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/obj/Debug/net8.0/Pangram.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/obj/Debug/net8.0/Pangram.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/obj/Debug/net8.0/Pangram.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/obj/Debug/net8.0/Pangram.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/obj/Debug/net8.0/Pangram.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/obj/Debug/net8.0/refint/Pangram.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/obj/Debug/net8.0/Pangram.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/obj/Debug/net8.0/Pangram.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Pangram/obj/Debug/net8.0/ref/Pangram.dll

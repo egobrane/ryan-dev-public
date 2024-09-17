@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/bin/Debug/net8.0/Elon's Toys
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/bin/Debug/net8.0/Elon's Toys.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/bin/Debug/net8.0/Elon's Toys.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/bin/Debug/net8.0/Elon's Toys.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/bin/Debug/net8.0/Elon's Toys.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/obj/Debug/net8.0/Elon's Toys.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/obj/Debug/net8.0/Elon's Toys.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/obj/Debug/net8.0/Elon's Toys.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/obj/Debug/net8.0/Elon's Toys.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/obj/Debug/net8.0/Elon's Toys.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/obj/Debug/net8.0/Elon's Toys.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/obj/Debug/net8.0/refint/Elon's Toys.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/obj/Debug/net8.0/Elon's Toys.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/obj/Debug/net8.0/Elon's Toys.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Elon's Toys/obj/Debug/net8.0/ref/Elon's Toys.dll

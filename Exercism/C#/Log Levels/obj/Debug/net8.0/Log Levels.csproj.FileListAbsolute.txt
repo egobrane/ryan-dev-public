@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/bin/Debug/net8.0/Log Levels
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/bin/Debug/net8.0/Log Levels.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/bin/Debug/net8.0/Log Levels.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/bin/Debug/net8.0/Log Levels.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/bin/Debug/net8.0/Log Levels.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/obj/Debug/net8.0/Log Levels.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/obj/Debug/net8.0/Log Levels.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/obj/Debug/net8.0/Log Levels.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/obj/Debug/net8.0/Log Levels.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/obj/Debug/net8.0/Log Levels.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/obj/Debug/net8.0/Log Levels.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/obj/Debug/net8.0/refint/Log Levels.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/obj/Debug/net8.0/Log Levels.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/obj/Debug/net8.0/Log Levels.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Levels/obj/Debug/net8.0/ref/Log Levels.dll

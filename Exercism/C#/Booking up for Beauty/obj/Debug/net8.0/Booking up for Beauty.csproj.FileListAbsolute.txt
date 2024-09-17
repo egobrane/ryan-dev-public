@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/obj/Debug/net8.0/Booking up for Beauty.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/obj/Debug/net8.0/Booking up for Beauty.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/obj/Debug/net8.0/Booking up for Beauty.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/obj/Debug/net8.0/Booking up for Beauty.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/obj/Debug/net8.0/Booking up for Beauty.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/bin/Debug/net8.0/Booking up for Beauty
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/bin/Debug/net8.0/Booking up for Beauty.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/bin/Debug/net8.0/Booking up for Beauty.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/bin/Debug/net8.0/Booking up for Beauty.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/bin/Debug/net8.0/Booking up for Beauty.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/obj/Debug/net8.0/Booking up for Beauty.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/obj/Debug/net8.0/refint/Booking up for Beauty.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/obj/Debug/net8.0/Booking up for Beauty.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/obj/Debug/net8.0/Booking up for Beauty.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Booking up for Beauty/obj/Debug/net8.0/ref/Booking up for Beauty.dll

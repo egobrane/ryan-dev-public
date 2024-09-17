@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/bin/Debug/net8.0/Proverb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/bin/Debug/net8.0/Proverb.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/bin/Debug/net8.0/Proverb.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/bin/Debug/net8.0/Proverb.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/bin/Debug/net8.0/Proverb.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/obj/Debug/net8.0/Proverb.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/obj/Debug/net8.0/Proverb.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/obj/Debug/net8.0/Proverb.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/obj/Debug/net8.0/Proverb.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/obj/Debug/net8.0/Proverb.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/obj/Debug/net8.0/Proverb.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/obj/Debug/net8.0/refint/Proverb.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/obj/Debug/net8.0/Proverb.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/obj/Debug/net8.0/Proverb.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Proverb/obj/Debug/net8.0/ref/Proverb.dll

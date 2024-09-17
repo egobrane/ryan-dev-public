@@ -1,36 +1,31 @@
-Configuration sql_server {
+Configuration dmz_sql_server {
 
-	param (
-		[Parameter(Mandatory = $true)]
-		[string]$hostName
-	)
-    
 	#Import Modules for all necessary DSC resources - must be in Azure Automation
 	Import-DscResource -ModuleName PSDesiredStateConfiguration 
 	Import-DscResource -ModuleName DSCR_PowerPlan
 
-	$azureStorageRoot = "https://egobranemisc.blob.core.usgovcloudapi.net/devsecops/"
+	$azureBlobUrl = "blob.core.usgovcloudapi.net"
+	$azureStorageAccount = "egobranemisc"
+	$azureStorageContainer = "cyberops"
+	$azureStorageRoot = "https://$($azureStorageAccount).$($azureBlobUrl)/$($azureStorageContainer)/"
 	$dsoStorageRoot = $azureStorageRoot + "scripts/DSC/Resources"
 	$dsoAppLockerRoot = $azureStorageRoot + "scripts/DSC/AppLocker"
 	$dsoUpdateRoot = $azureStorageRoot + "scripts/Update"
 	$azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows"
 
-	$dsoRoot = 'C:\egobrane\$DevSecOps'
+	$dsoRoot = 'C:\egobrane\$cyberops'
 	$gpoType = "egobranecomdomain"
 	$dsoLocalStorageRoot = Join-Path $dsoRoot "Resources"
 	$azCopyPath = Join-Path $dsoRoot "azcopy.exe"
-	$policyPath = Join-Path $dsoRoot "Applocker-Global-pol.xml"
 
 	$IKey = Get-AutomationVariable -Name "DuoIKey"
 	$SKey = Get-AutomationVariable -Name "DuoSKey"
-	$egobranelaPass = Get-AutomationPSCredential -Name "$hostName-egobranela"
 	$ProductKey = Get-AutomationVariable -Name "Server2022Key"
 
-	#Specify node assignment
-	Node $hostName {
+	#Desc: DMZ SQL Server DSC Configuration
+	Node localhost {
 
-
-		#Registry Resources
+		#Doc: Sets FIPS Algorithm registry policies.
 		Registry FIPSAlgorithmPolicy
 		{
 			Ensure    = "Present"
@@ -41,6 +36,7 @@ Configuration sql_server {
 			Force     = $true
 		}
 
+		#Doc: Allows multiple RDP sessions per user.
 		Registry TerminalServer
 		{
 			Ensure    = "Present"
@@ -51,8 +47,7 @@ Configuration sql_server {
 			Force     = $true
 		}
 
-
-		#PowerPlan Resources
+		#Doc: Sets Power Plan to Balanced.
 		cPowerPlan Balanced
 		{
 			Ensure = "Present"
@@ -61,6 +56,7 @@ Configuration sql_server {
 			Active = $true
 		}
 
+		#Doc: Sets AC MonitorTimeOut to 0.
 		cPowerPlanSetting MonitorTimeout
 		{
 			PlanGuid    = "SCHEME_BALANCED"
@@ -69,22 +65,8 @@ Configuration sql_server {
 			AcDc        = "AC"
 		}
 
-
-		#User Resources
-		User egobranela
-		{
-			Ensure                 = "Present"
-			Disabled               = $false
-			UserName               = "egobranela"
-			FullName               = "egobranela"
-			Password               = $egobranelaPass
-			PasswordChangeRequired = $false
-			PasswordNeverExpires   = $true
-		}
-
-
-		#File and Directory Resources
-		File DevSecOps
+		#Doc: Ensures presence of C:\egobrane\$cyberops.
+		File cyberops
 		{
 			Ensure          = "Present"
 			Type            = "Directory"
@@ -92,8 +74,7 @@ Configuration sql_server {
 			Attributes      = "Hidden"
 		}
 
-
-		#Powershell Script Resources
+		#Doc: Ensures AzCopy is located in C:\egobrane\$cyberops, and downloads latest from Microsoft if not.
 		Script DownloadAzCopy
 		{
 			TestScript = {
@@ -124,9 +105,369 @@ Configuration sql_server {
 			GetScript  = {
 				@{ Result = (Test-Path $using:azCopyPath) }
 			}
-			DependsOn  = "[File]DevSecOps"
+			DependsOn  = "[File]cyberops"
 		}
 
+		#Doc: Ensures Az.Accounts, Az.KeyVault, and Az.Storage PowerShell modules are installed and present.
+		Script DownloadAzModules
+		{
+			TestScript = {
+				[System.Collections.ArrayList]$moduleList = (Get-InstalledModule Az* -ErrorAction SilentlyContinue).Name
+				if ($moduleList -contains "Az.Accounts" -and $moduleList -contains "Az.KeyVault" -and $moduleList -contains "Az.Storage")
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript = {
+				if (!(Get-PackageProvider))
+				{
+					$packageManagerSource = "https://www.powershellgallery.com/api/v2/package/PackageManagement/1.1.0.0"
+					$packageManagerZipUrl = (Invoke-WebRequest -UseBasicParsing -Uri $packageManagerSource -MaximumRedirection 0 -ErrorAction SilentlyContinue).headers.location
+					$packageManagerFile = Split-Path $packageManagerZipUrl -Leaf
+					$packageManagerTargetPath = Join-Path $using:dsoRoot $packageManagerFile
+					$packageManagerTargetDir = (Get-Module PackageManagement -listavailable | Where-Object {$_.Path -like "*Program Files*"} ) | Split-Path | Split-Path
+					Invoke-WebRequest -UseBasicParsing -Uri $packageManagerZipUrl -OutFile $packageManagerTargetPath
+					Rename-Item -Path $packageManagerTargetPath -NewName ($packageManagerTargetPath).Replace("nupkg", "zip")
+					Expand-Archive -Path ($packageManagerTargetPath).Replace("nupkg", "zip") -DestinationPath (Join-Path $packageManagerTargetDir "1.1.0.0")
+					Import-Module PackageManagement -Force
+				}
+				Install-PackageProvider -Name NuGet -Force
+				Install-Module -Name Az.Accounts, Az.KeyVault, Az.Storage -Scope AllUsers -Force
+			}
+			GetScript = {
+				@{ Result = (Get-InstalledModule Az* -ErrorAction SilentlyContinue).Name }
+			}
+		}
+
+		#Doc: Ensures Microsoft Defender for Endpoint is onboarded and monitoring.
+		Script GetDefenderStatus
+        {
+            TestScript = {
+                if ((Get-MpComputerStatus).AMRunningMode -eq "Normal" -and `
+                ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Advanced Threat Protection\Status" -ErrorAction SilentlyContinue).OnboardingState) -eq "1")
+                {
+                    $true
+                } 
+                else
+                {
+                    $false
+                }
+            }
+            SetScript = {
+                throw  "Error: MDE not responding or configured. Please investigate." 
+            }
+            GetScript = {
+                @{Result = (Get-MpComputerStatus).AmRunningMode }
+            }
+        }
+
+		#Doc: Ensures egobranela local admin user is present and initially set with randomly-generated complex password in Azure Automation.
+		Script SetegobraneLAUser
+		{
+			TestScript = {
+				if ([System.Collections.ArrayList](Get-LocalUser).Name -Contains "egobranela")
+				{
+					$true
+				}
+				else
+				{
+					$false
+				} 		
+			}
+			SetScript = {
+				do
+				{
+					Connect-AzAccount -Environment AzureUSGovernment -Scope Process -Identity
+				} until (Get-AzTenant)
+				New-LocalUser -Name "egobranela" -NoPassword -ErrorAction SilentlyContinue
+				Set-LocalUser -Name "egobranela" -Password (Get-AzKeyVaultSecret -VaultName "dsc-config-vault" -Name ($env:COMPUTERNAME.Replace("_","-") + "-egobranela")).SecretValue
+				Set-LocalUser -Name "egobranela" -PasswordNeverExpires $true
+			}
+			GetScript = {
+				@{Result = (Get-LocalUser | Where-Object {$_.Name -eq "egobranela"} -ErrorAction SilentlyContinue) } 
+			}
+			DependsOn = @(
+				"[Script]DownloadAzModules"
+			)
+		}
+
+		#Doc: Ensures latest version of egobrane-user-monitor service is present, configured, and running.
+		Script SetegobraneUserMonitor
+		{
+			TestScript = {
+				do
+				{
+					Connect-AzAccount -Environment AzureUSGovernment -Scope Process -Identity | Out-Null
+				} until (Get-AzTenant)
+				$azureStorageCtx = New-AzStorageContext -StorageAccountName $using:azureStorageAccount
+				$points = 0
+				if (Get-Service -Name "egobrane-user-monitor" -ErrorAction SilentlyContinue)
+				{
+					$points++
+				}
+				$fileList = @(
+					"egobrane-user-monitor.exe"
+					"appsettings.json"
+				)
+				$presentFiles = (Get-ChildItem "$using:dsoRoot\egobrane-user-monitor" -ErrorAction SilentlyContinue).Name
+				if ($presentFiles -contains "egobrane-user-monitor.exe" -and $presentFiles -contains "appsettings.json")
+				{
+					$points++
+				}
+				foreach ($file in $fileList)
+				{
+					$localVersion = (Get-Item "$using:dsoRoot\egobrane-user-monitor\$file" -ErrorAction SilentlyContinue).LastWriteTime
+					$mostRecentVersion = (Get-AzStorageBlob -Context $azureStorageCtx -Container $using:azureStorageContainer -Blob "scripts/DSC/Resources/UserMonitor/$file").LastModified.LocalDateTime
+					if ($localVersion -gt $mostRecentVersion)
+					{
+						$points++
+					}
+				}
+				if ((Get-Service -Name "egobrane-user-monitor" -ErrorAction SilentlyContinue).Status -eq "Running")
+				{
+					$points++
+				}
+				if ($points -eq 5)
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript = {
+				do
+				{
+					Connect-AzAccount -Environment AzureUSGovernment -Scope Process -Identity | Out-Null
+				} until (Get-AzTenant)
+				$azureStorageCtx = New-AzStorageContext -StorageAccountName $using:azureStorageAccount
+				Remove-Item -Path "C:\egobrane\LogonAnnounce.exe", "C:\egobrane\LogoffAnnounce.exe" -Force -ErrorAction SilentlyContinue
+				$fileList = @(
+					"egobrane-user-monitor.exe"
+					"appsettings.json"
+				)
+				$presentFiles = (Get-ChildItem "$using:dsoRoot\egobrane-user-monitor" -ErrorAction SilentlyContinue).Name
+				if ($presentFiles -contains "egobrane-user-monitor.exe" -and $presentFiles -contains "appsettings.json")
+				{
+					foreach ($file in $fileList)
+					{
+						$localVersion = (Get-Item "$using:dsoRoot\egobrane-user-monitor\$file" -ErrorAction SilentlyContinue).LastWriteTime
+						$mostRecentVersion = (Get-AzStorageBlob -Context $azureStorageCtx -Container $using:azureStorageContainer -Blob "scripts/DSC/Resources/UserMonitor/$file").LastModified.LocalDateTime
+						if ($mostRecentVersion -gt $localVersion)
+						{
+							sc.exe stop "egobrane-user-monitor"
+							$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/UserMonitor/$file" `
+							"$using:dsoRoot\egobrane-user-monitor\$file" --output-level="essential") | Out-String
+							if($LASTEXITCODE -ne 0)
+							{
+								throw (("Copy error. $result"))
+							}
+							sc.exe start "egobrane-user-monitor"
+						}
+					}
+				}
+				else
+				{
+					$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/UserMonitor/egobrane-user-monitor.exe" `
+					"$using:dsoRoot\egobrane-user-monitor\egobrane-user-monitor.exe" --output-level="essential") | Out-String
+					if($LASTEXITCODE -ne 0)
+					{
+						throw (("Copy error. $result"))
+					}
+					$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/UserMonitor/appsettings.json" `
+					"$using:dsoRoot\egobrane-user-monitor\appsettings.json" --output-level="essential") | Out-String
+					if($LASTEXITCODE -ne 0)
+					{
+						throw (("Copy error. $result"))
+					}
+				}
+				if (!(Get-Service -Name "egobrane-user-monitor" -ErrorAction SilentlyContinue))
+				{
+					sc.exe create "egobrane-user-monitor" binPath="$using:dsoRoot\egobrane-user-monitor\egobrane-user-monitor.exe" start=auto
+				}
+				if ((Get-Service -Name "egobrane-user-monitor" -ErrorAction SilentlyContinue).Status -ne "Running")
+				{
+					sc.exe start "egobrane-user-monitor"
+				}
+			}
+			GetScript = {
+				@{Result = (Get-Service -Name "egobrane-user-monitor" -ErrorAction)}
+			}
+			DependsOn  = @(
+				"[Script]SetAzCopyVariables"
+				"[Script]DownloadAzModules"
+			)
+		}
+
+		#Doc: Ensures additional local administrator users are present if required.
+		Script SetAdditionalLAUser
+		{
+			TestScript = {
+				do
+				{
+					Connect-AzAccount -Environment AzureUSGovernment -Scope Process -Identity
+				} until (Get-AzTenant)
+				if (Get-AzKeyVaultSecret -VaultName "dsc-config-vault" -name ($env:COMPUTERNAME.Replace("_","-") + "-userla"))
+				{
+					$users = @(Get-AzKeyVaultSecret -VaultName "dsc-config-vault" -name ($env:COMPUTERNAME.Replace("_","-") + "-userla") -AsPlainText).Split(',')
+					foreach ($user in $users)
+					{
+						if ([System.Collections.ArrayList](Get-LocalUser).Name -Contains $user)
+						{
+							continue
+						}
+						else
+						{
+							return $false
+						}
+					}
+				}
+				$true
+			}
+			SetScript = {
+				$passwordScript = {
+					function randDouble
+					{
+						$i = 0;
+						$flag = $true;
+						$seedString = "";
+						[Byte[]]$randomByte = 1..1;
+						$gen = New-Object System.Security.Cryptography.RNGCryptoServiceProvider;
+						while($flag)
+						{
+							$gen.GetBytes($randomByte);
+							$rndNumber = [System.Convert]::ToInt32($randomByte[0]);
+							if($rndNumber -eq 0) {continue;}
+							$seedString = $seedString + $rndNumber;
+							$i++;
+							if($i -gt 2) {$flag = $false;} #3 1-255 strings combined.
+						}
+						$rand = New-Object -TypeName System.Random -ArgumentList $seedString;
+						return $rand.NextDouble();
+					}
+								
+					function randInt
+					{
+						param(
+						[int]$lBound = 0,
+						[int]$uBound = [Int32]::MaxValue
+						)
+						$rndDbl = randDouble;
+						$lBoundDbl = [System.Convert]::ToDouble($lBound);
+						$uBoundDbl = [System.Convert]::ToDouble($uBound);
+						return [System.Convert]::ToInt32(($uBoundDbl - $lBoundDbl) * $rndDbl + $lBoundDbl);
+					}
+								
+					function get-password
+					{
+						param(
+						[int]$len = 25,
+						[bool]$specials = $true
+						)
+								
+						$lowerCharsOrg = "abdeghjqrty";#"abcdefghijkmnopqrstuvwxyz";
+						$upperCharsOrg = "ABCDEFGHJKMNPQRTWXY";#"ABCDEFGHJKLMNPQRSTUVWXYZ"
+						$numbersOrg = "2346789";#"23456789"
+						$specialCharsOrg = "!@#$%^&*~";
+						$lowerChars = $lowerCharsOrg;
+						$upperChars = $upperCharsOrg;
+						$numbers = $numbersOrg;
+						$specialChars = $specialCharsOrg;
+						$lenOrg = $len;
+								
+						$maxSet = 3;
+						$maxSubLen = 25;
+								
+						if($specials -eq $false)
+						{
+							$specialChars = "";
+							$maxSet = 2;
+							$maxSubLen = 20;
+						}
+						$maxSubLenOrg = $maxSubLen;
+								
+						$output = "";
+						while($output.Length -lt $lenOrg)
+						{
+							$maxSubLen = [Math]::Min($len, $maxSubLen);
+							$subOutput = "";
+							$lastSetI = 99;
+							$lastChar = "";
+							while($subOutput.Length -lt $maxSubLen)
+							{
+								$setI = randInt 0 $maxSet;
+								if($setI -eq $lastSetI) {continue;}
+								switch($setI)
+								{
+									0 {$set = $lowerChars;}
+									1 {$set = $upperChars;}
+									2 {$set = $numbers;}
+									default {$set = $specialChars;}
+								}
+								$setLen = $set.Length - 1;
+								if($setLen -lt 1)
+								{
+									$lastSetI = $setI;
+									continue;
+								}
+								$i = randInt 0 $setLen;
+								$char = $set.Substring($i, 1);
+								if($subOutput.Contains($char)) #char already used.
+								{
+									switch($setI)
+									{
+										0 {$lowerChars = $lowerChars.Replace($char, "");}
+										1 {$upperChars = $upperChars.Replace($char, "");}
+										2 {$numbers = $numbers.Replace($char, "");}
+										default {$specialChars = $specialChars.Replace($char, "");}
+									}
+									continue;
+								}
+								if($i -lt $setLen -and $($lastChar -eq $set.Substring(($i + 1), 1))) {continue;} #char not at set end and sequential.
+								if($i -gt 0 -and $($lastChar -eq $set.Substring(($i - 1), 1))) {continue;} #char not at set beginning and sequential.
+								$lastSetI = $setI;
+								$lastChar = $char;
+								$subOutput = $subOutput + $char;
+							}
+							$output = $output + $subOutput;
+							$len = $len - $subOutput.Length;
+							$lowerChars = $lowerCharsOrg;
+							$upperChars = $upperCharsOrg;
+							$numbers = $numbersOrg;
+							$specialChars = $specialCharsOrg;
+							$maxSubLen = $maxSubLenOrg;
+						}
+						return $output;
+					}
+					return get-password
+				}
+
+				Connect-AzAccount -Environment AzureUSGovernment -Scope Process -Identity
+				$users = @(Get-AzKeyVaultSecret -VaultName "dsc-config-vault" -name ($env:COMPUTERNAME.Replace("_","-") + "-userla") -AsPlainText).Split(',')
+				foreach ($user in $users)
+				{
+					if ([System.Collections.ArrayList](Get-LocalUser).Name -notcontains $user)
+					{
+						$securePassword = $passwordScript.Invoke() | ConvertTo-SecureString -AsPlainText -Force
+						New-LocalUser -Name $user -Password $securePassword -ErrorAction SilentlyContinue
+						Set-LocalUser -Name $user -PasswordNeverExpires $true
+					}
+				}
+			}
+			GetScript = {
+				@{Result = (Get-LocalUser) } 
+			}
+			DependsOn = @(
+				"[Script]DownloadAzModules"
+			)
+		}
+
+		#Doc: Ensures AzCopy is set to Auto-Login with Machine Identity authentication for copying from Azure Storage.
 		Script SetAzCopyVariables
 		{
 			TestScript = {
@@ -149,7 +490,8 @@ Configuration sql_server {
 			DependsOn  = "[Script]DownloadAzCopy"
 		}
 
-		Script SetDevSecOpsPermissions
+		#Doc: Ensures C:\egobrane\$cyberops and all child objects only allows Read and Execute access for all users other than SYSTEM.
+		Script SetcyberopsPermissions
 		{
 			TestScript = {
 				$desiredACLAssignments = @(
@@ -237,9 +579,95 @@ Configuration sql_server {
 			GetScript  = {
 				@{ Result = (Get-Acl -Path $using:dsoRoot) }
 			}
-			DependsOn  = "[File]DevSecOps"
+			DependsOn  = "[File]cyberops"
 		}
 
+		#Doc: Ensures egobrane DSC Monitor scheduled task is present to monitor event logs for frozen DSC automation tasks and force them to restart if necessary.
+		Script SetDscMonitorScheduledTask
+		{
+			TestScript = {
+				if ((Get-ScheduledTask -TaskName "egobrane DSC Monitor" -ErrorAction SilentlyContinue).TaskName -eq "egobrane DSC Monitor")
+				{
+					$true
+				}
+				else
+				{
+					$false
+				}
+			}
+			SetScript = {
+				$name = "egobrane DSC Monitor"
+				$desc = "This task monitors the LCM to check if it is stuck in a consistency check state, and corrects it if so."
+				$class = cimclass MSFT_TaskEventTrigger root/Microsoft/Windows/TaskScheduler
+				$trigger = $class | New-CimInstance -ClientOnly
+				$trigger.Enabled = $true
+				$trigger.Subscription = '<QueryList><Query Id="0" Path="Microsoft-Windows-DSC/Operational"><Select Path="Microsoft-Windows-DSC/Operational">*[System[(EventID=4344) and TimeCreated[timediff(@SystemTime) &lt;= 3600000]]]</Select></Query></QueryList>'
+				$actionParameters = @{
+					Execute = 'C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe'
+					Argument = ' -Command "Stop-Process -Name WmiPrvSe -Force"'
+				}
+				$action = New-ScheduledTaskAction @actionParameters
+				$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Hours 23) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+				Register-ScheduledTask -Action $action -Trigger $trigger -TaskName $name -Description $desc -User "NT AUTHORITY\SYSTEM" -Settings $settings -Force
+			}
+			GetScript = {
+				@{ Result = (Get-ScheduledTask -TaskName "egobrane DSC Monitor" -ErrorAction SilentlyContinue | Where-Object {$_.TaskName -eq "egobrane DSC Monitor"}) }
+			}
+		}
+
+		#Doc: Ensures Local State Configuration Manager is set to Pull configurations from Azure Automation, ApplyAndAutoCorrect configurations, and auto-correct itself if desired state is not present.
+		Script SetDscParams
+		{
+			TestScript = {
+				if (((Get-DscLocalConfigurationManager).RefreshMode -ne "Pull") -or ((Get-DscLocalConfigurationManager).ConfigurationMode -ne "ApplyAndAutoCorrect"))
+				{
+					$false
+				}
+				else
+				{
+					$true
+				} 
+				
+			}
+			SetScript = {
+				Set-Content -Path "$using:dsoRoot\LCMfix.ps1" -Value "[DSCLocalConfigurationManager()]
+				configuration LCMConfig
+				{
+					Node localhost
+					{
+						Settings
+						{
+							RefreshMode = 'Pull'
+							ConfigurationMode = 'ApplyAndAutoCorrect'
+						}
+						ConfigurationRepositoryWeb AzureAutomationStateConfiguration
+						{
+							ServerUrl = 'https://egobrane.agentsvc.usge.azure-automation.us/accounts/egobrane'
+						}
+						ResourceRepositoryWeb AzureAutomationStateConfiguration
+						{
+							ServerUrl = 'https://egobrane.agentsvc.usge.azure-automation.us/accounts/egobrane'
+						}
+						ReportServerWeb AzureAutomationStateConfiguration
+						{
+							ServerUrl = 'https://egobrane.agentsvc.usge.azure-automation.us/accounts/egobrane'
+						}
+					}
+				}
+				
+				LCMConfig -Output C:\Temp\LCMfix
+				" 
+					
+				Powershell -ExecutionPolicy Bypass "$using:dsoRoot\LCMfix.ps1"
+				Set-DscLocalConfigurationManager -Path "C:\Temp\LCMfix\" -Force
+				Remove-Item -Path "$using:dsoRoot\LCMfix.ps1","C:\Temp\LCMfix\" -Recurse -Force -ErrorAction SilentlyContinue
+			}
+			GetScript = {
+				@{Result = (Get-DscLocalConfigurationManager)}
+			}
+		}
+
+		#Doc: Ensures Hidden Files and File Extensions are enabled in File Explorer options for all current users and future users.
 		Script SetFolderOptions
 		{
 			TestScript = {
@@ -269,6 +697,7 @@ Configuration sql_server {
 								
 					if (!$profileLoaded)
 					{
+						[gc]::collect()
 						& reg.exe unload "HKLM\TempHive_$profileSID"
 					}
 				}
@@ -313,6 +742,7 @@ Configuration sql_server {
 				
 					if (!$profileLoaded)
 					{
+						[gc]::collect()
 						& reg.exe unload "HKLM\TempHive_$profileSID"
 					}
 				}
@@ -323,6 +753,7 @@ Configuration sql_server {
 			}
 		}
 
+		#Doc: Ensures Windows is activated with an applicable product key.
 		Script WindowsProductKey
 		{
 			TestScript = {
@@ -349,6 +780,7 @@ Configuration sql_server {
 			}
 		}
 
+		#Doc: Ensures Duo Authentication for Windows MFA is installed and registered to the egobrane environment.
 		Script DuoInstall
 		{
 			TestScript = {
@@ -366,7 +798,7 @@ Configuration sql_server {
 				}
 			}
 			SetScript  = {
-				$duoPath = Join-Path $using:dsoLocalResources "duo-installer.exe"
+				$duoPath = Join-Path $using:dsoLocalStorageRoot "duo-installer.exe"
 				$result = (& $using:azCopyPath copy "$using:dsoUpdateRoot/packages/duo-win-login-4.2.2.exe" `
 						$duoPath --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
@@ -376,19 +808,17 @@ Configuration sql_server {
 				(& $duoPath /S /V`" /qn IKEY=`"$using:IKey`" SKEY=`"$using:SKey`" HOST="api-7fe218fe.duosecurity.com" AUTOPUSH="#1" FAILOPEN="#0" RDPONLY="#0" UAC_PROTECTMODE="#2"`") 
 			}
 			GetScript  = {
-				@{
-					GetScript  = $GetScript
-					SetScript  = $SetScript
-					TestScript = $TestScript
-					Result     = ('True' -in (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -eq $DuoInstall }))
-				}
-			}
+				@{ Result = (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
+						Where-Object { $_.DisplayName -eq "Duo Authentication for Windows Logon x64" }).DisplayName 
+    }
+			}	
 			DependsOn  = @(
 				"[Script]OfflineDomainJoin"
 				"[Script]SetAzCopyVariables"
 			)
 		}
 
+		#Doc: Ensures "egobrane Updates" scheduled task for deployment of third-party application updates is configured.
 		Script DownloadAutoUpdate
 		{
 			TestScript = {
@@ -416,6 +846,7 @@ Configuration sql_server {
 			DependsOn  = "[Script]SetAzCopyVariables"
 		}
 
+		#Doc: Ensures node is joined to domain using an offline domain join file in Azure Storage.
 		Script OfflineDomainJoin
 		{
 			TestScript = {
@@ -430,7 +861,7 @@ Configuration sql_server {
 				}
 			}
 			SetScript  = {
-				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/ODJ/$using:hostName.txt" `
+				$result = (& $using:azCopyPath copy "$using:dsoStorageRoot/ODJ/$env:COMPUTERNAME.txt" `
 						"$using:dsoLocalResources\ODJ.txt" --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
@@ -449,7 +880,8 @@ Configuration sql_server {
 			DependsOn  = "[Script]SetAzCopyVariables"
 		}
 
-		Script EnableRDP
+		#Doc: Ensures Windows Firewall rules for Remote Desktop are enabled.
+		Script SetRDPFirewall
 		{
 			TestScript = {
 				if ((Get-NetFirewallRule -DisplayGroup "Remote Desktop").Enabled -ne "True")
@@ -469,7 +901,8 @@ Configuration sql_server {
 			}
 		}
 
-		Script EnableRDPRegistry
+		#Doc: Ensures RDP is enabled via registry keys 'fDenyTSConnections' 0 and 'UsersAuthentication' 1.
+		Script SetRDPRegistry
 		{
 			TestScript = {
 				$tsRegistryKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server'
@@ -499,6 +932,39 @@ Configuration sql_server {
 			}
 		}
 
+		#Doc: Ensures time.windows.com is set as NTP server target.
+		Script SetNTPConfig
+		{
+			TestScript = {
+				$dateTimeReg = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DateTime\Servers"
+				$w32Reg = "HKLM:\SYSTEM\CurrentControlSet\Services\W32Time\Parameters"
+				$NTPServers = @((Get-Item -Path $dateTimeReg -ErrorAction SilentlyContinue).Property | Sort-Object)
+				$defaultTargetPriority = (Get-ItemProperty -Path $dateTimeReg -Name $NTPServers[0] -ErrorAction SilentlyContinue | Select-Object -ExpandProperty $NTPServers[0])
+				$defaultTarget = (Get-ItemProperty -Path $dateTimeReg -Name $defaultTargetPriority -ErrorAction SilentlyContinue | Select-Object -ExpandProperty $defaultTargetPriority)
+				$NTPType = (Get-ItemProperty -Path $w32Reg -Name Type | Select-Object -ExpandProperty Type)
+				$NTPServerProperty = (Get-ItemProperty -Path $w32Reg -Name NtpServer | Select-Object -ExpandProperty NtpServer)
+				
+				if ($defaultTarget -eq "time.windows.com" -and $NTPType -eq "NTP" -and $NTPServerProperty -eq "time.windows.com")
+				{
+					$true
+				}
+				else
+				{
+					$false
+				} 
+			}
+			SetScript = {
+				w32tm /config /syncfromflags:manual /manualpeerlist:time.windows.com
+				w32tm /config /update
+				w32tm /resync 
+				
+			}
+			GetScript = {
+				@{ Result = (w32tm /query /configuration)} 
+			}
+		}
+
+		#Doc: Ensures TimeZone is set to 'Eastern Standard Time'.
 		Script SetTimeZone
 		{
 			Testscript = {
@@ -519,7 +985,8 @@ Configuration sql_server {
 			}
 		}
 
-		Script LocalAdminDMZRole
+		#Doc: Ensures local Administrators group contains egobranela and DMZ Administrators role.
+		Script SetLocalAdminDMZRole
 		{
 			TestScript = {
 				if ((Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) -like '*egobraneCOM\$8G4000-3S2D3LMFN9RL*' -and (Get-LocalGroupMember -Group "Administrators" | Out-String -Stream) -like '*egobranela*')
@@ -540,7 +1007,8 @@ Configuration sql_server {
 			DependsOn  = "[Script]OfflineDomainJoin"
 		}
 
-		Script DisableLocalAdminUser
+		#Doc: Ensures local built-in "Administrator" account is disabled.
+		Script SetLocalAdministratorDisabled
 		{
 			TestScript = {
 				if ((Get-LocalUser -Name "Administrator" | Out-String -Stream) -like "*True*")
@@ -559,54 +1027,126 @@ Configuration sql_server {
 				@{ Result = (Get-LocalUser -Name "Administrator") }
 			}
 		}
-            
+        
+		#Doc: Sets TLS 1.2 restrictions, secure algorithms, secure cipher suites and disables insecure versions.
 		Script CryptoWebServerStrict
 		{
 			TestScript = {
-				$schannelRegistryPath = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\'
-
-				$intendedCipherArray = @(
-					'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384',
-					'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256',
-					'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384',
-					'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256',
-					'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384',
-					'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
-				)
-				$intendedTLSArray = @(
-					'0',
-					'0',
-					'0',
-					'0',
-					'0',
-					'0',
-					'0',
-					'0',
-					'0',
-					'0',
-					'0',
-					'0',
-					'4294967295',
-					'4294967295'
-				)
-				$currentCipherArray = (Get-TlsCipherSuite | Sort-Object -Property BasecipherSuite -Descending).Name
-				$ErrorActionPreference = "SilentlyContinue"
-				$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled
-				$ErrorActionPreference = "Continue"
-				$cipherMatch = @(Compare-Object -ReferenceObject @($intendedCipherArray) `
-						-DifferenceObject @($currentCipherArray)).Length -eq 0 | Out-String -Stream
-				$tlsMatch = @(Compare-Object -ReferenceObject @($intendedTLSArray) `
-						-DifferenceObject @($currentTLSArray)).Length -eq 0 | Out-String -Stream
-				if ($cipherMatch -eq 'True' -and $tlsMatch -eq 'True')
+				do
 				{
-					$true
-				}
+					Connect-AzAccount -Environment AzureUSGovernment -Scope Process -Identity
+				} until (Get-AzContext)
+				if ($cryptoExceptions = Get-AzKeyVaultSecret -VaultName "dsc-config-vault" -Name ($env:COMPUTERNAME.Replace("_","-") + "-CryptoExceptions") -AsPlainText -ErrorAction SilentlyContinue){}
 				else
 				{
-					$false
+					$cryptoExceptions = "None"
+				}
+				switch ( $cryptoExceptions )
+				{
+					"TLS"
+					{
+						$intendedCipherArray = @(
+							'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384',
+							'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256',
+							'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384',
+							'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256',
+							'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384',
+							'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
+						)
+						$currentCipherArray = (Get-TlsCipherSuite | Sort-Object -Property BasecipherSuite -Descending).Name
+						$cipherMatch = @(Compare-Object -ReferenceObject @($intendedCipherArray) `
+								-DifferenceObject @($currentCipherArray)).Length -eq 0
+						$cipherMatch
+					}
+
+					"Ciphers"
+					{
+						$schannelRegistryPath = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\'
+						$intendedTLSArray = @(
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'4294967295',
+							'4294967295'
+						)
+						$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled -ErrorAction SilentlyContinue
+						$tlsMatch = @(Compare-Object -ReferenceObject @($intendedTLSArray) `
+								-DifferenceObject @($currentTLSArray)).Length -eq 0
+						$tlsMatch
+					}
+
+					"None"
+					{
+						$schannelRegistryPath = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\'
+
+						$intendedCipherArray = @(
+							'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384',
+							'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256',
+							'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384',
+							'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256',
+							'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384',
+							'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
+						)
+						$intendedTLSArray = @(
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'0',
+							'4294967295',
+							'4294967295'
+						)
+						$currentCipherArray = (Get-TlsCipherSuite | Sort-Object -Property BasecipherSuite -Descending).Name
+						$ErrorActionPreference = "SilentlyContinue"
+						$currentTLSArray = Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled
+						$ErrorActionPreference = "Continue"
+						$cipherMatch = @(Compare-Object -ReferenceObject @($intendedCipherArray) `
+								-DifferenceObject @($currentCipherArray)).Length -eq 0 | Out-String -Stream
+						$tlsMatch = @(Compare-Object -ReferenceObject @($intendedTLSArray) `
+								-DifferenceObject @($currentTLSArray)).Length -eq 0 | Out-String -Stream
+						if ($cipherMatch -eq 'True' -and $tlsMatch -eq 'True')
+						{
+							$true
+						}
+						else
+						{
+							$false
+						}
+					}
+
+					"Both"
+					{
+						$true
+					}
 				}
 			}
 			SetScript  = {
+				do
+				{
+					Connect-AzAccount -Environment AzureUSGovernment -Scope Process -Identity
+				} until (Get-AzContext)
+				if ($cryptoExceptions = Get-AzKeyVaultSecret -VaultName "dsc-config-vault" -Name ($env:COMPUTERNAME.Replace("_","-") + "-CryptoExceptions") -AsPlainText -ErrorAction SilentlyContinue){}
+				else
+				{
+					$cryptoExceptions = "None"
+				}
+
 				$schannelRegistryPath = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\'
 				$mpuhPath = Join-Path $schannelRegistryPath "\Protocols\Multi-Protocol Unified Hello"
 				$pct10Path = Join-Path $schannelRegistryPath "\Protocols\PCT 1.0"
@@ -617,74 +1157,79 @@ Configuration sql_server {
 				$tls12Path = Join-Path $schannelRegistryPath "\Protocols\TLS 1.2"
 
 				#Disable Insecure Protocols
-				$insecureProtocolPathArray = @(
-					$mpuhPath,
-					$pct10Path,
-					$ssl20Path,
-					$ssl30Path,
-					$tls10Path,
-					$tls11Path
-				)
-
-				foreach ($insecureProtocol in $insecureProtocolPathArray)
+				if ($cryptoExceptions -eq "Ciphers" -or "None")
 				{
-					New-Item "$insecureProtocol\Server" -Force | Out-Null
-					New-ItemProperty -Path "$insecureProtocol\Server" -Name Enabled -Value 0 -PropertyType 'Dword' -Force | Out-Null
-					New-ItemProperty -Path "$insecureProtocol\Server" -Name "DisabledByDefault" -Value 1 -PropertyType 'Dword' -Force | Out-Null
-					New-Item "$insecureProtocol\Client" -Force | Out-Null
-					New-ItemProperty -Path "$insecureProtocol\Client" -Name Enabled -Value 0 -PropertyType 'Dword' -Force | Out-Null
-					New-ItemProperty -Path "$insecureProtocol\Client" -Name "DisabledByDefault" -Value 1 -PropertyType 'Dword' -Force | Out-Null
-				}
+					$insecureProtocolPathArray = @(
+						$mpuhPath,
+						$pct10Path,
+						$ssl20Path,
+						$ssl30Path,
+						$tls10Path,
+						$tls11Path
+					)
 
-				$secureProtocolArray = @(
-					$tls12Path
-				)
+					foreach ($insecureProtocol in $insecureProtocolPathArray)
+					{
+						New-Item "$insecureProtocol\Server" -Force | Out-Null
+						New-ItemProperty -Path "$insecureProtocol\Server" -Name Enabled -Value 0 -PropertyType 'Dword' -Force | Out-Null
+						New-ItemProperty -Path "$insecureProtocol\Server" -Name "DisabledByDefault" -Value 1 -PropertyType 'Dword' -Force | Out-Null
+						New-Item "$insecureProtocol\Client" -Force | Out-Null
+						New-ItemProperty -Path "$insecureProtocol\Client" -Name Enabled -Value 0 -PropertyType 'Dword' -Force | Out-Null
+						New-ItemProperty -Path "$insecureProtocol\Client" -Name "DisabledByDefault" -Value 1 -PropertyType 'Dword' -Force | Out-Null
+					}
 
-				#Enable Secure Protocols
-				foreach ($secureProtocol in $secureProtocolArray)
-				{
-					New-Item "$secureProtocol\Server" -Force | Out-Null
-					New-ItemProperty -Path "$secureProtocol\Server" -Name Enabled -Value '0xffffffff' -PropertyType 'Dword' -Force | Out-Null
-					New-ItemProperty -Path "$secureProtocol\Server" -Name "DisabledByDefault" -Value 0 -PropertyType 'Dword' -Force | Out-Null
-					New-Item "$secureProtocol\Client" -Force | Out-Null
-					New-ItemProperty -Path "$secureProtocol\Client" -Name Enabled -Value '0xffffffff' -PropertyType 'Dword' -Force | Out-Null
-					New-ItemProperty -Path "$secureProtocol\Client" -Name "DisabledByDefault" -Value 0 -PropertyType 'Dword' -Force | Out-Null
+					$secureProtocolArray = @(
+						$tls12Path
+					)
+
+					#Enable Secure Protocols
+					foreach ($secureProtocol in $secureProtocolArray)
+					{
+						New-Item "$secureProtocol\Server" -Force | Out-Null
+						New-ItemProperty -Path "$secureProtocol\Server" -Name Enabled -Value '0xffffffff' -PropertyType 'Dword' -Force | Out-Null
+						New-ItemProperty -Path "$secureProtocol\Server" -Name "DisabledByDefault" -Value 0 -PropertyType 'Dword' -Force | Out-Null
+						New-Item "$secureProtocol\Client" -Force | Out-Null
+						New-ItemProperty -Path "$secureProtocol\Client" -Name Enabled -Value '0xffffffff' -PropertyType 'Dword' -Force | Out-Null
+						New-ItemProperty -Path "$secureProtocol\Client" -Name "DisabledByDefault" -Value 0 -PropertyType 'Dword' -Force | Out-Null
+					}
 				}
 
 				# Disable Insecure Ciphers
-				$insecureCiphers = @(
-					'DES 56/56',
-					'NULL',
-					'RC2 128/128',
-					'RC2 40/128',
-					'RC2 56/128',
-					'RC4 40/128',
-					'RC4 56/128',
-					'RC4 64/128',
-					'RC4 128/128',
-					'Triple DES 168'
-				)
-
-				foreach ($insecureCipher in $insecureCiphers)
+				if ($cryptoExceptions -eq "TLS" -or "None")
 				{
-					$key = (Get-Item HKLM:\).OpenSubKey('SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers', $true).CreateSubKey($insecureCipher)
-					$key.SetValue('Enabled', 0, 'Dword')
-					$key.Close()
+					$insecureCiphers = @(
+						'DES 56/56',
+						'NULL',
+						'RC2 128/128',
+						'RC2 40/128',
+						'RC2 56/128',
+						'RC4 40/128',
+						'RC4 56/128',
+						'RC4 64/128',
+						'RC4 128/128',
+						'Triple DES 168'
+					)
+
+					foreach ($insecureCipher in $insecureCiphers)
+					{
+						$key = (Get-Item HKLM:\).OpenSubKey('SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers', $true).CreateSubKey($insecureCipher)
+						$key.SetValue('Enabled', 0, 'Dword')
+						$key.Close()
+					}
+
+					# Enable Secure Ciphers
+					$secureCiphers = @(
+						'AES 128/128',
+						'AES 256/256'
+					)
+
+					foreach ($secureCipher in $secureCiphers)
+					{
+						$key = (Get-Item HKLM:\).OpenSubKey('SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers', $true).CreateSubKey($secureCipher)
+						New-ItemProperty -Path "$schannelRegistryPath\Ciphers\$secureCipher" -Name Enabled -Value '0xffffffff' -PropertyType 'Dword' -Force | Out-Null
+						$key.Close()
+					}
 				}
-
-				# Enable Secure Ciphers
-				$secureCiphers = @(
-					'AES 128/128',
-					'AES 256/256'
-				)
-
-				foreach ($secureCipher in $secureCiphers)
-				{
-					$key = (Get-Item HKLM:\).OpenSubKey('SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers', $true).CreateSubKey($secureCipher)
-					New-ItemProperty -Path "$schannelRegistryPath\Ciphers\$secureCipher" -Name Enabled -Value '0xffffffff' -PropertyType 'Dword' -Force | Out-Null
-					$key.Close()
-				}
-
 
 				# Set Hashes Configuration
 				New-Item "$schannelRegistryPath\Hashes" -Force | Out-Null
@@ -724,36 +1269,42 @@ Configuration sql_server {
 				New-ItemProperty -Path "$schannelRegistryPath\KeyExchangeAlgorithms\Diffie-Hellman" -Name "ServerMinKeyBitLength" -Value '2048' -PropertyType 'Dword' -Force | Out-Null
 
 				# Enable Strict Web Server Cipher Suites
-				$cipherSuitesOrder = @(
-					'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384',
-					'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256',
-					'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384',
-					'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256',
-					'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384',
-					'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
-				)
-				$cipherSuitesAsString = [string]::join(',', $cipherSuitesOrder)
-				New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002' -Name "Functions" -Value $cipherSuitesAsString -PropertyType 'String' -Force | Out-Null
-				New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319' -Name "SchUseStrongCrypto" -Value 1 -PropertyType 'Dword' -Force | Out-Null
-				New-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319' -name "SchUseStrongCrypto" -Value 1 -PropertyType 'Dword' -Force | Out-Null
+				if ($cryptoExceptions -eq "TLS" -or "None")
+				{
+					$cipherSuitesOrder = @(
+						'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384',
+						'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256',
+						'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384',
+						'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256',
+						'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384',
+						'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
+					)
+					$cipherSuitesAsString = [string]::join(',', $cipherSuitesOrder)
+					New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002' -Name "Functions" -Value $cipherSuitesAsString -PropertyType 'String' -Force | Out-Null
+					New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319' -Name "SchUseStrongCrypto" -Value 1 -PropertyType 'Dword' -Force | Out-Null
+					New-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319' -name "SchUseStrongCrypto" -Value 1 -PropertyType 'Dword' -Force | Out-Null
+				}
 			}
 			GetScript  = {
-				@{ Result = (Get-ItemPropertyValue -Path $schannelRegistryPath\Protocols\*\* -Name Enabled) }
+				@{ Result = ([Net.ServicePointManager]::SecurityProtocol) }
 			}
+			DependsOn = @(
+				"[Script]DownloadAzModules"
+			)
 		}
 		
-
-		#Begin AppLocker Configuration Block
+		#Doc: Ensures Application Identity Service is running for AppLocker.
 		Service AppIDsvc
 		{
 			Name           = "AppIDSvc"
 			State          = "Running"
 			BuiltinAccount = "LocalService"
 			DependsOn      = @(
-				"[Script]PolicyUpdate"
+				"[Script]SetAppLocker"
 			)
 		}
 
+		#Doc: Ensures Application Identity Service is set to auto-start, from registry key.
 		Registry AutoStartupAppID
 		{
 			Ensure    = "Present"
@@ -764,33 +1315,68 @@ Configuration sql_server {
 			Force     = $true
 		}
 
-		#Check if remote policy has changed and downloads latest policy if so
-		Script PolicyUpdate
+		#Doc: Ensures latest relevant AppLocker policy is downloaded from Azure Storage and ensures it remains applied.
+		Script SetAppLocker
 		{
 			TestScript = {
 				$false
 			}
 			SetScript  = {
-				$result = (& $using:azCopyPath copy "$using:dsoAppLockerRoot/Applocker-Global-pol.xml" `
-						"$using:policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+				do
+				{
+					Connect-AzAccount -Environment AzureUSGovernment -Scope Process -Identity
+				} until (Get-AzContext)
+				if ($appLockerMode = Get-AzKeyVaultSecret -VaultName "dsc-config-vault" -Name ($env:COMPUTERNAME.Replace("_","-") + "-applocker") -AsPlainText -ErrorAction SilentlyContinue )
+				{
+					if ($appLockerMode -eq "Enforce")
+					{
+						$targetPolicy = "$using:dsoAppLockerRoot/Applocker-Global-Enforce.xml"
+						$policyPath = "$using:dsoRoot\Applocker-Global-Enforce.xml"
+					}
+					elseif ($appLockerMode -eq "Developer")
+					{
+						$targetPolicy = "$using:dsoAppLockerRoot/Applocker-Global-Dev.xml"
+						$policyPath = "$using:dsoRoot\Applocker-Global-Dev.xml"
+					}
+					elseif ($appLockerMode -eq "Server")
+					{
+						$targetPolicy = "$using:dsoAppLockerRoot/Applocker-Server.xml"
+						$policyPath = "$using:dsoRoot\Applocker-Server.xml"
+					}
+					else
+					{
+						$targetPolicy = "$using:dsoAppLockerRoot/Applocker-Global-pol.xml"
+						$policyPath = "$using:dsoRoot\Applocker-Global-pol.xml"
+					}
+				}
+				else
+				{
+					$targetPolicy = "$using:dsoAppLockerRoot/Applocker-Global-pol.xml"
+					$policyPath = "$using:dsoRoot\Applocker-Global-pol.xml"
+				}
+				$result = (& $using:azCopyPath copy $targetPolicy "$policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
 				if($LASTEXITCODE -ne 0)
 				{
-					throw (("Copy error. $result"))
+					$result = (& $using:azCopyPath copy $targetPolicy "$policyPath" --overwrite=ifSourceNewer --output-level="essential") | Out-String
+					if($LASTEXITCODE -ne 0)
+					{
+						throw (("Copy error. $result"))
+					}
 				}
-				Set-AppLockerPolicy -XmlPolicy "$using:policyPath"
+				Get-ChildItem $using:dsoRoot | Where-Object {$_.Name -like "Applocker*xml" -and $_.Name -ne ($policyPath | Split-Path -Leaf)} | Remove-Item -Force 
+				Set-AppLockerPolicy -XmlPolicy "$policyPath"
 			}
 			GetScript  = {
-				@{
-					GetScript  = $GetScript
-					SetScript  = $SetScript
-					TestScript = $TestScript
-					Result     = (Get-Content "$using:policyPath")
-				}
+				@{ Result = (Get-ChildItem "$dsoRoot" | Where-Object {$_.Name -like "Applocker*xml"}) } 
 			}
-			DependsOn  = "[Script]SetAzCopyVariables"
+			DependsOn  = @(
+				"[Script]SetAzCopyVariables"
+				"[Script]DownloadAzModules"
+			)
 		}
 		
-		Script GPOSettings
+		#Doc: Downloads latest compiled aggregated copy of applicable GPOs as a .PolicyRules file and imports them locally, if node is not on egobraneNET domain.
+		Script SetGPOs
 		{
 			TestScript = {
 				if ((Get-WmiObject Win32_ComputerSystem).Domain -eq "egobraneNET.com")

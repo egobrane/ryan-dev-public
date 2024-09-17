@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/bin/Debug/net8.0/Tim from Marketing
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/bin/Debug/net8.0/Tim from Marketing.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/bin/Debug/net8.0/Tim from Marketing.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/bin/Debug/net8.0/Tim from Marketing.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/bin/Debug/net8.0/Tim from Marketing.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/obj/Debug/net8.0/Tim from Marketing.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/obj/Debug/net8.0/Tim from Marketing.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/obj/Debug/net8.0/Tim from Marketing.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/obj/Debug/net8.0/Tim from Marketing.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/obj/Debug/net8.0/Tim from Marketing.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/obj/Debug/net8.0/Tim from Marketing.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/obj/Debug/net8.0/refint/Tim from Marketing.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/obj/Debug/net8.0/Tim from Marketing.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/obj/Debug/net8.0/Tim from Marketing.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Tim from Marketing/obj/Debug/net8.0/ref/Tim from Marketing.dll

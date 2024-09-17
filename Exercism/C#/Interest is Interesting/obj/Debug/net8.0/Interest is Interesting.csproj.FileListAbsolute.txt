@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/bin/Debug/net8.0/Interest is Interesting
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/bin/Debug/net8.0/Interest is Interesting.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/bin/Debug/net8.0/Interest is Interesting.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/bin/Debug/net8.0/Interest is Interesting.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/bin/Debug/net8.0/Interest is Interesting.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/obj/Debug/net8.0/Interest is Interesting.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/obj/Debug/net8.0/Interest is Interesting.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/obj/Debug/net8.0/Interest is Interesting.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/obj/Debug/net8.0/Interest is Interesting.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/obj/Debug/net8.0/Interest is Interesting.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/obj/Debug/net8.0/Interest is Interesting.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/obj/Debug/net8.0/refint/Interest is Interesting.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/obj/Debug/net8.0/Interest is Interesting.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/obj/Debug/net8.0/Interest is Interesting.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Interest is Interesting/obj/Debug/net8.0/ref/Interest is Interesting.dll

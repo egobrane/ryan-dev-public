@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/bin/Debug/net8.0/Difference of Squares
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/bin/Debug/net8.0/Difference of Squares.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/bin/Debug/net8.0/Difference of Squares.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/bin/Debug/net8.0/Difference of Squares.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/bin/Debug/net8.0/Difference of Squares.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/obj/Debug/net8.0/Difference of Squares.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/obj/Debug/net8.0/Difference of Squares.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/obj/Debug/net8.0/Difference of Squares.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/obj/Debug/net8.0/Difference of Squares.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/obj/Debug/net8.0/Difference of Squares.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/obj/Debug/net8.0/Difference of Squares.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/obj/Debug/net8.0/refint/Difference of Squares.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/obj/Debug/net8.0/Difference of Squares.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/obj/Debug/net8.0/Difference of Squares.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Difference of Squares/obj/Debug/net8.0/ref/Difference of Squares.dll

@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/bin/Debug/net8.0/Log Analysis
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/bin/Debug/net8.0/Log Analysis.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/bin/Debug/net8.0/Log Analysis.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/bin/Debug/net8.0/Log Analysis.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/bin/Debug/net8.0/Log Analysis.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/obj/Debug/net8.0/Log Analysis.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/obj/Debug/net8.0/Log Analysis.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/obj/Debug/net8.0/Log Analysis.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/obj/Debug/net8.0/Log Analysis.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/obj/Debug/net8.0/Log Analysis.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/obj/Debug/net8.0/Log Analysis.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/obj/Debug/net8.0/refint/Log Analysis.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/obj/Debug/net8.0/Log Analysis.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/obj/Debug/net8.0/Log Analysis.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Log Analysis/obj/Debug/net8.0/ref/Log Analysis.dll

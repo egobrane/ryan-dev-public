@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/bin/Debug/net8.0/Squeaky Clean
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/bin/Debug/net8.0/Squeaky Clean.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/bin/Debug/net8.0/Squeaky Clean.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/bin/Debug/net8.0/Squeaky Clean.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/bin/Debug/net8.0/Squeaky Clean.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/obj/Debug/net8.0/Squeaky Clean.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/obj/Debug/net8.0/Squeaky Clean.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/obj/Debug/net8.0/Squeaky Clean.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/obj/Debug/net8.0/Squeaky Clean.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/obj/Debug/net8.0/Squeaky Clean.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/obj/Debug/net8.0/Squeaky Clean.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/obj/Debug/net8.0/refint/Squeaky Clean.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/obj/Debug/net8.0/Squeaky Clean.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/obj/Debug/net8.0/Squeaky Clean.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Squeaky Clean/obj/Debug/net8.0/ref/Squeaky Clean.dll

@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/obj/Debug/net8.0/Annalyn's Infiltration.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/obj/Debug/net8.0/Annalyn's Infiltration.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/obj/Debug/net8.0/Annalyn's Infiltration.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/obj/Debug/net8.0/Annalyn's Infiltration.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/obj/Debug/net8.0/Annalyn's Infiltration.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/bin/Debug/net8.0/Annalyn's Infiltration
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/bin/Debug/net8.0/Annalyn's Infiltration.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/bin/Debug/net8.0/Annalyn's Infiltration.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/bin/Debug/net8.0/Annalyn's Infiltration.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/bin/Debug/net8.0/Annalyn's Infiltration.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/obj/Debug/net8.0/Annalyn's Infiltration.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/obj/Debug/net8.0/refint/Annalyn's Infiltration.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/obj/Debug/net8.0/Annalyn's Infiltration.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/obj/Debug/net8.0/Annalyn's Infiltration.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Annalyn's Infiltration/obj/Debug/net8.0/ref/Annalyn's Infiltration.dll

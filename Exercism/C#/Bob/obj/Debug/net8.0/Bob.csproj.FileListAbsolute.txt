@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/bin/Debug/net8.0/Bob
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/bin/Debug/net8.0/Bob.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/bin/Debug/net8.0/Bob.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/bin/Debug/net8.0/Bob.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/bin/Debug/net8.0/Bob.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/obj/Debug/net8.0/Bob.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/obj/Debug/net8.0/Bob.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/obj/Debug/net8.0/Bob.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/obj/Debug/net8.0/Bob.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/obj/Debug/net8.0/Bob.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/obj/Debug/net8.0/Bob.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/obj/Debug/net8.0/refint/Bob.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/obj/Debug/net8.0/Bob.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/obj/Debug/net8.0/Bob.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bob/obj/Debug/net8.0/ref/Bob.dll

@@ -1,0 +1,15 @@
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/bin/Debug/net8.0/Bird Watch
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/bin/Debug/net8.0/Bird Watch.deps.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/bin/Debug/net8.0/Bird Watch.runtimeconfig.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/bin/Debug/net8.0/Bird Watch.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/bin/Debug/net8.0/Bird Watch.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/obj/Debug/net8.0/Bird Watch.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/obj/Debug/net8.0/Bird Watch.AssemblyInfoInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/obj/Debug/net8.0/Bird Watch.AssemblyInfo.cs
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/obj/Debug/net8.0/Bird Watch.csproj.CoreCompileInputs.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/obj/Debug/net8.0/Bird Watch.sourcelink.json
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/obj/Debug/net8.0/Bird Watch.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/obj/Debug/net8.0/refint/Bird Watch.dll
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/obj/Debug/net8.0/Bird Watch.pdb
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/obj/Debug/net8.0/Bird Watch.genruntimeconfig.cache
+/Users/ryanbamford/Dev/ryan-dev/Exercism/C#/Bird Watch/obj/Debug/net8.0/ref/Bird Watch.dll
